@@ -1,0 +1,78 @@
+{
+  "rules": {
+    ".read": "now < 1783119600000",
+    ".write": "now < 1783119600000",
+    
+    "medications": {
+      ".indexOn": ["patientId"]
+    },
+    
+    "adherenceLogs": {
+      ".indexOn": ["patientId", "medicationId", "scheduledDate"]
+    },
+    
+    "patients": {
+      ".indexOn": ["linkedUid"]
+    },
+    
+    "users": {
+      ".indexOn": ["email"]
+    },
+    
+    "careRooms": {
+      ".indexOn": ["patientId"],
+      "$roomId": {
+        ".read": "auth != null && (data.child('patientUid').val() === auth.uid || data.child('patientId').val() === auth.uid || data.child('caregiverIds').child(auth.uid).val() === true || data.child('clinicianId').val() === auth.uid)",
+        ".write": "auth != null && (newData.child('patientUid').val() === auth.uid || newData.child('patientId').val() === auth.uid || newData.child('caregiverIds').child(auth.uid).val() === true || newData.child('clinicianId').val() === auth.uid || data.child('patientUid').val() === auth.uid || data.child('patientId').val() === auth.uid || data.child('caregiverIds').child(auth.uid).val() === true || data.child('clinicianId').val() === auth.uid) && (!data.exists() || newData.child('messages').val() === data.child('messages').val())",
+        "messages": {
+          "$messageId": {
+            ".read": "auth != null && (root.child('careRooms').child($roomId).child('patientUid').val() === auth.uid || root.child('careRooms').child($roomId).child('patientId').val() === auth.uid || root.child('careRooms').child($roomId).child('caregiverIds').child(auth.uid).val() === true || root.child('careRooms').child($roomId).child('clinicianId').val() === auth.uid)",
+            ".write": "auth != null && (root.child('careRooms').child($roomId).child('patientUid').val() === auth.uid || root.child('careRooms').child($roomId).child('patientId').val() === auth.uid || root.child('careRooms').child($roomId).child('caregiverIds').child(auth.uid).val() === true || root.child('careRooms').child($roomId).child('clinicianId').val() === auth.uid) && ((!data.exists() && (newData.child('senderId').val() === auth.uid || newData.child('senderId').val() === 'system')) || (data.exists() && data.child('senderId').val() === auth.uid))",
+            "reactions": {
+              "$uid": {
+                ".write": "auth != null && auth.uid === $uid && (root.child('careRooms').child($roomId).child('patientUid').val() === auth.uid || root.child('careRooms').child($roomId).child('patientId').val() === auth.uid || root.child('careRooms').child($roomId).child('caregiverIds').child(auth.uid).val() === true || root.child('careRooms').child($roomId).child('clinicianId').val() === auth.uid)"
+              }
+            },
+            "text": {
+              ".write": "auth != null && data.parent().child('senderId').val() === auth.uid"
+            },
+            "editedAt": {
+              ".write": "auth != null && data.parent().child('senderId').val() === auth.uid"
+            },
+            "deleted": {
+              ".write": "auth != null && data.parent().child('senderId').val() === auth.uid"
+            }
+          }
+        },
+        "typing": {
+          "$uid": {
+            ".read": "auth != null && (root.child('careRooms').child($roomId).child('patientUid').val() === auth.uid || root.child('careRooms').child($roomId).child('patientId').val() === auth.uid || root.child('careRooms').child($roomId).child('caregiverIds').child(auth.uid).val() === true || root.child('careRooms').child($roomId).child('clinicianId').val() === auth.uid)",
+            ".write": "auth != null && auth.uid === $uid && (root.child('careRooms').child($roomId).child('patientUid').val() === auth.uid || root.child('careRooms').child($roomId).child('patientId').val() === auth.uid || root.child('careRooms').child($roomId).child('caregiverIds').child(auth.uid).val() === true || root.child('careRooms').child($roomId).child('clinicianId').val() === auth.uid)"
+          }
+        }
+      }
+    },
+
+    "conversations": {
+      "$convId": {
+        ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+        ".write": "auth != null && (data.child('participants').child(auth.uid).exists() || !data.exists())",
+        "messages": {
+          ".indexOn": ["timestamp"]
+        }
+      }
+    },
+    "feedback": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    },
+    "bugReports": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    }
+  }
+}
