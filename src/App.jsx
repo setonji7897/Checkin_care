@@ -33,6 +33,7 @@ import CareTriangle       from "./pages/patient/CareTriangle";
 // Caregiver Imports
 import CaregiverDashboard  from "./pages/caregiver/CaregiverDashboard";
 import CaregiverPatients   from "./pages/caregiver/CaregiverPatients";
+import CaregiverPatientDetail from "./pages/caregiver/CaregiverPatientDetail";
 import CaregiverAlerts     from "./pages/caregiver/CaregiverAlerts";
 import CaregiverReports    from "./pages/caregiver/CaregiverReports";
 import CaregiverMessages   from "./pages/caregiver/CaregiverMessages";
@@ -128,6 +129,7 @@ export default function App() {
       }>
         <Route index element={<CaregiverDashboard />} />
         <Route path="patients" element={<CaregiverPatients />} />
+        <Route path="patients/:patientId" element={<CaregiverPatientDetail />} />
         <Route path="alerts" element={<CaregiverAlerts />} />
         <Route path="reports" element={<CaregiverReports />} />
         <Route path="messages" element={<CaregiverMessages />} />
