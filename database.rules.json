@@ -12,11 +12,19 @@
     },
     
     "patients": {
-      ".indexOn": ["linkedUid"]
+      ".indexOn": ["linkedUid", "caregiverId"]
     },
 
     "caregiverAssignments": {
       ".indexOn": ["caregiverId"]
+    },
+
+    "careInvites": {
+      ".indexOn": ["patientId"],
+      ".read": "auth != null",
+      "$code": {
+        ".write": "auth != null && (!data.exists() || (data.child('used').val() === false && (data.child('patientId').val() === auth.uid || newData.child('usedBy').val() === auth.uid)))"
+      }
     },
     
     "users": {
