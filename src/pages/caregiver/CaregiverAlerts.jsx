@@ -1,9 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Bell, CheckCircle2, MessageSquare } from "lucide-react";
-import { ref, query, orderByChild, equalTo, onValue, update, push, set, get } from "firebase/database";
+import { ref, query, orderByChild, equalTo, onValue, get, push, set, update } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
-import { evaluatePatientAlerts, calculateAdherence, getPatientName, getPatientUid, writeUserNotification } from "../../utils/backendData";
+import { evaluatePatientAlerts, calculatePatientRisk, getPatientName, getPatientUid, writeUserNotification } from "../../utils/backendData";
 import "../../styles/dashboard.css";
 
 export default function CaregiverAlerts() {
@@ -11,13 +11,11 @@ export default function CaregiverAlerts() {
   const [patients, setPatients] = useState([]);
   const [logs, setLogs] = useState([]);
   const [medications, setMedications] = useState([]);
-  // Resolved alert IDs (stored locally so user can dismiss computed alerts)
-  const [resolvedIds, setResolvedIds] = useState(new Set());
 
   useEffect(() => {
     if (!currentUser) return;
 
-    // Fetch assigned patients via caregiverAssignments
+    // Resolve assigned patients via caregiverAssignments
     const assignQuery = query(
       ref(db, "caregiverAssignments"),
       orderByChild("caregiverId"),
@@ -57,57 +55,37 @@ export default function CaregiverAlerts() {
     };
   }, [currentUser]);
 
-  // Compute alerts using evaluatePatientAlerts for each patient
-  const patientAlerts = useMemo(() => {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
+  // Compute alerts using the shared evaluatePatientAlerts function from backendData
+  const alertedPatients = useMemo(() => {
     return patients
       .map(patient => {
         const alerts = evaluatePatientAlerts(patient.id, logs, medications);
-        if (alerts.length === 0) return null;
-
-        const pId = patient.id;
-        if (resolvedIds.has(pId)) return null;
-
-        const weekLogs = logs.filter(l =>
-          l.patientId === pId &&
-          l.status !== "upcoming" &&
-          new Date(l.scheduledDate) >= weekAgo
-        );
-        const adherence = calculateAdherence(weekLogs).rate;
-
-        return { patient, alerts, adherence };
+        const risk = calculatePatientRisk(patient.id, logs);
+        return { patient, alerts, adherence: risk.rate };
       })
-      .filter(Boolean);
-  }, [patients, logs, medications, resolvedIds]);
+      .filter(({ alerts }) => alerts.length > 0);
+  }, [patients, logs, medications]);
 
   const sendReminder = async (patient) => {
     const uid = getPatientUid(patient, patient.id);
     await writeUserNotification(uid, {
       type: "reminder",
-      title: "Medication reminder",
-      body: "Please check your medication schedule.",
+      title: "Caregiver Reminder",
+      body: "Please check your medication schedule and take any missed doses.",
       actionRoute: "/patient/schedule"
     });
   };
 
   const notifyClinician = async (patient) => {
-    // Find clinicianId from the patient record
-    const clinicianId = patient.clinicianId;
-    if (!clinicianId) return;
-    await set(push(ref(db, "notifications/" + clinicianId)), {
+    if (!patient.clinicianId) return;
+    await set(push(ref(db, "notifications/" + patient.clinicianId)), {
       type: "caregiver_alert",
-      title: "Caregiver alert",
-      body: getPatientName(patient) + " needs attention with their medications.",
+      title: "Caregiver Alert",
+      body: `${getPatientName(patient)} needs attention — please review their adherence.`,
       timestamp: Date.now(),
       read: false,
       actionRoute: "/clinician/patients/" + patient.id
     });
-  };
-
-  const resolveAlert = (patientId) => {
-    setResolvedIds(prev => new Set([...prev, patientId]));
   };
 
   return (
@@ -119,55 +97,53 @@ export default function CaregiverAlerts() {
         </div>
       </header>
 
-      {patientAlerts.length === 0 ? (
+      {alertedPatients.length === 0 ? (
         <div className="dash-card">
-          <p style={{ color: "var(--text-muted)", margin: 0 }}>No critical alerts at this time.</p>
+          <p style={{ color: "var(--text-muted)", margin: 0 }}>
+            No critical alerts at this time. All patients are within normal adherence ranges.
+          </p>
         </div>
       ) : (
         <div style={{ display: "grid", gap: "1rem" }}>
-          {patientAlerts.map(({ patient, alerts, adherence }) => (
+          {alertedPatients.map(({ patient, alerts, adherence }) => (
             <div key={patient.id} className="dash-card" style={{ borderLeft: "5px solid #ef4444" }}>
               <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                <AlertTriangle color="#ef4444" />
+                <AlertTriangle color="#ef4444" style={{ flexShrink: 0, marginTop: "2px" }} />
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
                     <h3 style={{ margin: 0, color: "var(--text-primary)" }}>{getPatientName(patient)}</h3>
                     <span style={{
                       fontWeight: 700,
                       color: adherence < 50 ? "#ef4444" : adherence < 80 ? "#f59e0b" : "#10b981"
                     }}>
-                      {adherence}% Adherence
+                      {adherence}% adherence this week
                     </span>
                   </div>
-                  <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
+                  <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.25rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
                     {alerts.map((alert, idx) => (
-                      <li key={idx} style={{ color: "#ef4444", fontSize: "0.9rem", marginBottom: "0.2rem" }}>
-                        {alert.message}
-                      </li>
+                      <li key={idx} style={{ color: "#ef4444", marginBottom: "0.25rem" }}>{alert.message}</li>
                     ))}
                   </ul>
                 </div>
               </div>
+
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
                 <button
                   onClick={() => sendReminder(patient)}
-                  className="btn-primary"
+                  className="primary-btn"
                   style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem" }}
                 >
                   <Bell size={16} /> Send Reminder
                 </button>
-                <button
-                  onClick={() => notifyClinician(patient)}
-                  style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg-card)", color: "var(--text-primary)", cursor: "pointer", fontWeight: 700 }}
-                >
-                  <MessageSquare size={16} /> Notify Clinician
-                </button>
-                <button
-                  onClick={() => resolveAlert(patient.id)}
-                  style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg-card)", color: "#10b981", cursor: "pointer", fontWeight: 700 }}
-                >
-                  <CheckCircle2 size={16} /> Resolve
-                </button>
+                {patient.clinicianId && (
+                  <button
+                    onClick={() => notifyClinician(patient)}
+                    className="outline-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem" }}
+                  >
+                    <MessageSquare size={16} /> Notify Clinician
+                  </button>
+                )}
               </div>
             </div>
           ))}
