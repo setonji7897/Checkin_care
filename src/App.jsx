@@ -130,7 +130,7 @@ export default function App() {
         <Route path="patients" element={<CaregiverPatients />} />
         <Route path="alerts" element={<CaregiverAlerts />} />
         <Route path="reports" element={<CaregiverReports />} />
-        <Route path="messages" element={<MessagesPage activeRole="caregiver" />} />
+        <Route path="messages" element={<CaregiverMessages />} />
         <Route path="notifications" element={<CaregiverNotifications />} />
         <Route path="profile" element={<CaregiverProfile />} />
         <Route path="settings" element={<CaregiverSettings />} />
