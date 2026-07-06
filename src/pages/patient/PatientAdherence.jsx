@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { ref, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
@@ -107,7 +107,7 @@ export default function PatientAdherence() {
       mostMissedName: mostMissed ? mostMissed[0] : "None",
       mostMissedCount: mostMissed ? mostMissed[1] : 0,
       weeklyData,
-      monthlyCounts: monthlyCounts.length ? monthlyCounts : [{ name: "No logs", status: "none", value: 1, color: "#cbd5e1" }],
+      monthlyCounts: monthlyCounts.length ? monthlyCounts : [{ name: "No logs", status: "none", value: 1, color: "var(--border)" }],
       trendData
     };
   }, [logs]);
@@ -125,7 +125,7 @@ export default function PatientAdherence() {
 
       {logs.length === 0 ? (
         <div className="dash-card" style={{ textAlign: 'center', padding: '3rem' }}>
-          <TrendingUp size={48} color="#cbd5e1" style={{ marginBottom: '1rem' }} />
+          <TrendingUp size={48} color="var(--border)" style={{ marginBottom: '1rem' }} />
           <h2 style={{ color: 'var(--text-primary)' }}>No data available yet</h2>
           <p style={{ color: 'var(--text-muted)' }}>Check off some medications to start tracking your adherence.</p>
         </div>

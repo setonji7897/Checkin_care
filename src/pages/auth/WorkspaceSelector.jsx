@@ -1,4 +1,4 @@
-// src/pages/auth/WorkspaceSelector.jsx
+﻿// src/pages/auth/WorkspaceSelector.jsx
 //
 // PURPOSE: Landing landing page for users with multiple roles to select which
 // dashboard workspace they would like to enter upon logging in.
@@ -48,9 +48,9 @@ export default function WorkspaceSelector() {
                 gap: "0.5rem"
               }}
             >
-              {role === "patient" && "🧑‍⚕️ Patient Portal"}
-              {role === "caregiver" && "🤝 Caregiver Dashboard"}
-              {role === "clinician" && "👩‍🔬 Clinician Console"}
+              {role === "patient" && "ðŸ§‘â€âš•ï¸ Patient Portal"}
+              {role === "caregiver" && "ðŸ¤ Caregiver Dashboard"}
+              {role === "clinician" && "ðŸ‘©â€ðŸ”¬ Clinician Console"}
             </button>
           ))}
         </div>

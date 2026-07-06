@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { Send, AlertTriangle, X } from "lucide-react";
 
 export default function MessageInput({ onSendMessage, onTypingChange, replyTo, onCancelReply }) {

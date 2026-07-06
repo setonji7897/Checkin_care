@@ -100,3 +100,48 @@ export async function writeUserNotification(userId, payload) {
   });
   return notifRef.key;
 }
+
+export function evaluatePatientAlerts(patientId, logs = [], medications = []) {
+  const alerts = [];
+  const patientLogs = logs.filter(l => l.patientId === patientId);
+  
+  // 1. Weekly adherence < 50%
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  const weeklyLogs = patientLogs.filter(log => log.status !== "upcoming" && new Date(log.scheduledDate) >= cutoff);
+  if (weeklyLogs.length > 0) {
+    const taken = weeklyLogs.filter(log => log.status === "taken").length;
+    const rate = Math.round((taken / weeklyLogs.length) * 100);
+    if (rate < 50) {
+      alerts.push({ type: "adherence", message: `Weekly adherence dropped to ${rate}%` });
+    }
+  }
+
+  // 2. 2 or more consecutive missed doses
+  const pastLogs = patientLogs.filter(l => l.status !== "upcoming")
+    .sort((a, b) => {
+      const dtA = new Date(`${a.scheduledDate}T${a.scheduledTime || "00:00"}`).getTime();
+      const dtB = new Date(`${b.scheduledDate}T${b.scheduledTime || "00:00"}`).getTime();
+      return dtB - dtA;
+    });
+
+  if (pastLogs.length >= 2) {
+    if (pastLogs[0].status === "missed" && pastLogs[1].status === "missed") {
+      alerts.push({ type: "consecutive_missed", message: "2+ consecutive missed doses" });
+    }
+  }
+
+  // 3. No logs in the last 24+ hours despite an active schedule
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const hasRecentLog = pastLogs.some(l => {
+    const dt = new Date(`${l.scheduledDate}T${l.scheduledTime || "00:00"}`).getTime();
+    return dt >= oneDayAgo;
+  });
+  const hasActiveSchedule = medications.some(m => m.patientId === patientId);
+  
+  if (!hasRecentLog && hasActiveSchedule) {
+    alerts.push({ type: "no_activity", message: "No activity in 24+ hours" });
+  }
+
+  return alerts;
+}

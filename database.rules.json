@@ -1,7 +1,7 @@
 {
   "rules": {
-    ".read": "now < 1783119600000",
-    ".write": "now < 1783119600000",
+    ".read": "auth != null",
+    ".write": "auth != null",
     
     "medications": {
       ".indexOn": ["patientId"]
@@ -13,6 +13,10 @@
     
     "patients": {
       ".indexOn": ["linkedUid"]
+    },
+
+    "caregiverAssignments": {
+      ".indexOn": ["caregiverId"]
     },
     
     "users": {
@@ -54,6 +58,7 @@
     },
 
     "conversations": {
+      ".read": "auth != null",
       "$convId": {
         ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
         ".write": "auth != null && (data.child('participants').child(auth.uid).exists() || !data.exists())",

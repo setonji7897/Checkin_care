@@ -1,4 +1,4 @@
-// src/components/MedicationReminder.jsx
+﻿// src/components/MedicationReminder.jsx
 import { useEffect, useState } from "react";
 import { ref, query, orderByChild, equalTo, get } from "firebase/database";
 import { db } from "../firebase/config";
@@ -103,7 +103,7 @@ export default function MedicationReminder({ currentUser }) {
               const notificationKey = `${id}_${currentDateString}_${time}`;
               
               if (!newNotifiedSet.has(notificationKey)) {
-                console.log(`⏰ Time to take ${med.medicationName || med.name}!`);
+                console.log(`â° Time to take ${med.medicationName || med.name}!`);
                 
                 // 1. Play Sound
                 playAlarmSound();

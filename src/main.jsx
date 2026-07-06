@@ -1,4 +1,4 @@
-// src/main.jsx
+﻿// src/main.jsx
 //
 // PURPOSE: The JavaScript entry point — the first file that runs.
 // Vite reads this file (referenced in index.html) to boot the React app.

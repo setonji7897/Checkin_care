@@ -1,4 +1,4 @@
-// src/pages/auth/ForgotPassword.jsx
+﻿// src/pages/auth/ForgotPassword.jsx
 //
 // PURPOSE: Handles sending password reset email verification links to users.
 

@@ -1,9 +1,9 @@
-import { useRef, useState } from "react";
+﻿import { useRef, useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import ContextCard from "./ContextCard";
 import { deleteMessage, editMessage, setReaction } from "../../services/careRoomService";
 
-const REACTION_OPTIONS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
+const REACTION_OPTIONS = ["ðŸ‘", "â¤ï¸", "ðŸ˜‚", "ðŸ˜®", "ðŸ˜¢", "ðŸ™"];
 
 function formatMessageTime(value) {
   if (!value) return "";

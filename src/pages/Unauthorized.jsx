@@ -1,4 +1,4 @@
-// src/pages/Unauthorized.jsx
+﻿// src/pages/Unauthorized.jsx
 //
 // PURPOSE: Accessible and user-friendly denier fallback screen when users 
 // try to visit areas not permitted by their assigned security role.
@@ -46,9 +46,9 @@ export default function Unauthorized() {
       padding: "2rem",
       textAlign: "center"
     }}>
-      <span style={{ fontSize: "4rem", marginBottom: "1rem" }}>🚫</span>
-      <h1 style={{ margin: "0 0 0.5rem 0", color: "#1a1a2e", fontWeight: 800 }}>Access Denied</h1>
-      <p style={{ color: "#6b7280", maxWidth: "420px", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "2rem" }}>
+      <span style={{ fontSize: "4rem", marginBottom: "1rem" }}>ðŸš«</span>
+      <h1 style={{ margin: "0 0 0.5rem 0", color: "var(--text-primary)", fontWeight: 800 }}>Access Denied</h1>
+      <p style={{ color: "var(--text-muted)", maxWidth: "420px", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "2rem" }}>
         Your user account role is not permitted to view this area of the Medication Reminder portal.
       </p>
       

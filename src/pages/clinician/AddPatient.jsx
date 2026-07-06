@@ -94,6 +94,18 @@ export default function AddPatient() {
       };
 
       await set(newPatientRef, payload);
+
+      if (linkedUid) {
+        await set(push(ref(db, "notifications/" + linkedUid)), {
+          read: false,
+          timestamp: Date.now(),
+          type: "invite_redemption",
+          title: "Clinician Connected",
+          body: `Clinician ${currentUser.email} has added you to their patient roster.`,
+          actionRoute: "/patient/profile"
+        });
+      }
+
       navigate(`/clinician/patients/${newPatientRef.key}`);
     } catch (err) {
       console.error("Failed to add patient:", err);
@@ -162,7 +174,7 @@ export default function AddPatient() {
                 onChange={e => setEmail(e.target.value)}
               />
               {errors.email && <p style={{ color: "#ef4444", fontSize: "0.8rem", marginTop: "0.2rem" }}>{errors.email}</p>}
-              <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: "0.1rem 0 0 0" }}>
+              <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: "0.1rem 0 0 0" }}>
                 Entering the email matching a registered Patient login will automatically link their logs.
               </p>
             </div>

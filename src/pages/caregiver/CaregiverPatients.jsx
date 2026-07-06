@@ -1,31 +1,53 @@
 import { useEffect, useMemo, useState } from "react";
-import { Users, Bell, MessageSquare } from "lucide-react";
-import { ref, query, orderByChild, equalTo, onValue } from "firebase/database";
+import { Users, Bell, MessageSquare, ChevronRight } from "lucide-react";
+import { ref, query, orderByChild, equalTo, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { calculatePatientRisk, getPatientName, getPatientUid, writeUserNotification } from "../../utils/backendData";
 import { getOrCreateConversation } from "../../utils/messageUtils";
 
 export default function CaregiverPatients() {
   const { currentUser, userData } = useAuth();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     if (!currentUser) return;
-    const patientsQuery = query(ref(db, "patients"), orderByChild("caregiverId"), equalTo(currentUser.uid));
-    const unsubPatients = onValue(patientsQuery, (snapshot) => {
-      const list = [];
-      snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setPatients(list);
+
+    // Query caregiverAssignments by caregiverId to get assigned patientIds
+    const assignQuery = query(
+      ref(db, "caregiverAssignments"),
+      orderByChild("caregiverId"),
+      equalTo(currentUser.uid)
+    );
+
+    const unsubAssign = onValue(assignQuery, async (snapshot) => {
+      const patientIds = [];
+      snapshot.forEach(child => {
+        patientIds.push(child.key); // child.key is the patientId
+      });
+
+      // Fetch each patient record
+      const patientList = [];
+      for (const pid of patientIds) {
+        const pSnap = await get(ref(db, "patients/" + pid));
+        if (pSnap.exists()) {
+          patientList.push({ id: pid, ...pSnap.val() });
+        }
+      }
+      setPatients(patientList);
     });
+
     const unsubLogs = onValue(ref(db, "adherenceLogs"), (snapshot) => {
       const list = [];
       snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
       setLogs(list);
     });
+
     return () => {
-      unsubPatients();
+      unsubAssign();
       unsubLogs();
     };
   }, [currentUser]);
@@ -34,12 +56,17 @@ export default function CaregiverPatients() {
     const risk = calculatePatientRisk(patient.id, logs);
     const todayStr = new Date().toISOString().split("T")[0];
     const todayLogs = logs.filter(log => log.patientId === patient.id && log.scheduledDate === todayStr);
-    const taken = todayLogs.filter(log => log.status === "taken").length;
-    return { patient, risk, todayText: todayLogs.length ? taken + "/" + todayLogs.length + " taken today" : "No doses logged today" };
+    const eligible = todayLogs.filter(l => l.status !== "upcoming");
+    const taken = eligible.filter(log => log.status === "taken").length;
+    const todayText = eligible.length
+      ? taken + "/" + eligible.length + " doses taken today"
+      : "No doses logged today";
+    return { patient, risk, todayText };
   }), [patients, logs]);
 
   const sendReminder = async (patient) => {
-    await writeUserNotification(getPatientUid(patient, patient.id), {
+    const uid = getPatientUid(patient, patient.id);
+    await writeUserNotification(uid, {
       type: "reminder",
       title: "Caregiver reminder",
       body: "Please check your medication schedule.",
@@ -57,7 +84,7 @@ export default function CaregiverPatients() {
       userData?.firstName || "Caregiver",
       getPatientName(patient)
     );
-    window.location.href = "/caregiver/messages";
+    navigate("/caregiver/messages");
   };
 
   return (
@@ -68,6 +95,7 @@ export default function CaregiverPatients() {
           <p className="dash-sub">Manage and monitor assigned patients</p>
         </div>
       </header>
+
       {rows.length === 0 ? (
         <div className="dash-card">
           <p style={{ color: "var(--text-muted)", margin: 0 }}>No patients are assigned to you yet.</p>
@@ -75,19 +103,51 @@ export default function CaregiverPatients() {
       ) : (
         <div style={{ display: "grid", gap: "1rem" }}>
           {rows.map(({ patient, risk, todayText }) => (
-            <div key={patient.id} className="dash-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: "space-between", flexWrap: "wrap" }}>
+            <div
+              key={patient.id}
+              className="dash-card"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/caregiver/patients/" + patient.id)}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", justifyContent: "space-between", flexWrap: "wrap" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{ padding: '1rem', background: '#ecfdf5', borderRadius: '50%', color: '#059669' }}><Users size={24} /></div>
+                  <div style={{ padding: "1rem", background: "#ecfdf5", borderRadius: "50%", color: "#059669" }}>
+                    <Users size={24} />
+                  </div>
                   <div>
                     <h3 style={{ margin: 0, color: "var(--text-primary)" }}>{getPatientName(patient)}</h3>
                     <p style={{ margin: 0, color: "var(--text-muted)" }}>{todayText}</p>
-                    <p style={{ margin: "0.25rem 0 0", color: risk.color, fontWeight: 700 }}>{risk.rate}% adherence · {risk.label}</p>
+                    <p style={{ margin: "0.25rem 0 0", color: risk.color, fontWeight: 700 }}>
+                      {risk.rate}% adherence · {risk.label}
+                    </p>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => sendReminder(patient)} className="btn-primary" style={{ padding: "0.55rem 0.8rem" }}><Bell size={16} /> Send Reminder</button>
-                  <button onClick={() => startMessage(patient)} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.8rem", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg-card)", color: "var(--text-primary)", fontWeight: 700, cursor: "pointer" }}><MessageSquare size={16} /> Message</button>
+
+                <div
+                  style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-end", flex: "0 0 auto" }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => sendReminder(patient)}
+                    className="primary-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1rem", whiteSpace: "nowrap", fontSize: "0.875rem" }}
+                  >
+                    <Bell size={16} /> Send Reminder
+                  </button>
+                  <button
+                    onClick={() => startMessage(patient)}
+                    className="outline-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1rem", whiteSpace: "nowrap" }}
+                  >
+                    <MessageSquare size={16} /> Message
+                  </button>
+                  <button
+                    onClick={() => navigate("/caregiver/patients/" + patient.id)}
+                    className="outline-btn"
+                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1rem", whiteSpace: "nowrap" }}
+                  >
+                    <ChevronRight size={16} /> View
+                  </button>
                 </div>
               </div>
             </div>

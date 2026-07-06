@@ -68,6 +68,17 @@ export async function sendMessage(conversationId, senderId, recipientId, text) {
   const unreadSnap = await get(unreadRef);
   const currentUnread = unreadSnap.exists() ? unreadSnap.val() : 0;
   await set(unreadRef, currentUnread + 1);
+
+  // Send push notification to recipient
+  const notifRef = push(ref(db, "notifications/" + recipientId));
+  await set(notifRef, {
+    read: false,
+    timestamp: Date.now(),
+    type: "new_message",
+    title: "New Direct Message",
+    body: text.trim(),
+    actionRoute: "/messages"
+  });
 }
 
 /**

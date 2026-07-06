@@ -1,4 +1,4 @@
-// src/pages/patient/TodaySchedule.jsx
+﻿// src/pages/patient/TodaySchedule.jsx
 //
 // Premium timeline schedule — uses shared useTodaySchedule hook so the
 // dose list is ALWAYS identical to what the Dashboard sees.
@@ -14,7 +14,7 @@ import { logAdherence } from "../../utils/adherenceLogger";
 import { useTodaySchedule } from "../../hooks/useTodaySchedule";
 import "../../styles/dashboard.css";
 
-// ── Status display config ─────────────────────────────────────────────────
+// â”€â”€ Status display config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const STATUS_META = {
   upcoming: {
     label: "Upcoming", icon: Clock3,
@@ -64,12 +64,12 @@ function minutesFor(time) {
   return (h || 0) * 60 + (m || 0);
 }
 
-// ── Component ─────────────────────────────────────────────────────────────
+// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function TodaySchedule() {
   const { currentUser } = useAuth();
   const navigate        = useNavigate();
 
-  // ← shared hook — identical data to Dashboard
+  // â† shared hook — identical data to Dashboard
   const { resolvedPatientId, todayDoses, todayLogs, loading } = useTodaySchedule(currentUser);
 
   const todayDateStr  = getTodayDateString();
@@ -156,7 +156,7 @@ export default function TodaySchedule() {
     );
   }
 
-  // ── Render ────────────────────────────────────────────────────────────
+  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="premium-schedule-page">
       <header className="dash-header premium-schedule-header">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { FileText, Download, Users, User, Calendar } from "lucide-react";
 import { getAllPatientsRiskRanked } from "../../services/patientInsightService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -40,7 +40,7 @@ export default function ClinicianReports() {
       
       return (
         <div id="report-content" style={{ padding: "2rem", background: "white", color: "black", borderRadius: 12 }}>
-          <h2 style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "1rem", marginBottom: "2rem" }}>Population Adherence Report</h2>
+          <h2 style={{ borderBottom: "2px solid var(--border)", paddingBottom: "1rem", marginBottom: "2rem" }}>Population Adherence Report</h2>
           
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginBottom: "2rem" }}>
             <div>
@@ -56,7 +56,7 @@ export default function ClinicianReports() {
 
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem" }}>
             <thead>
-              <tr style={{ background: "#f8fafc", borderBottom: "2px solid #cbd5e1", textAlign: "left" }}>
+              <tr style={{ background: "var(--bg-card)", borderBottom: "2px solid var(--border)", textAlign: "left" }}>
                 <th style={{ padding: "0.75rem" }}>Patient</th>
                 <th style={{ padding: "0.75rem" }}>Risk Level</th>
                 <th style={{ padding: "0.75rem" }}>Adherence</th>
@@ -65,7 +65,7 @@ export default function ClinicianReports() {
             </thead>
             <tbody>
               {patients.map(p => (
-                <tr key={p.id} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                <tr key={p.id} style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={{ padding: "0.75rem", fontWeight: 600 }}>{p.fullName}</td>
                   <td style={{ padding: "0.75rem", textTransform: "uppercase" }}>{p.insights.level}</td>
                   <td style={{ padding: "0.75rem" }}>{p.insights.adherencePercent}%</td>
@@ -83,7 +83,7 @@ export default function ClinicianReports() {
     const ins = selectedPatient.insights;
     return (
       <div id="report-content" style={{ padding: "2rem", background: "white", color: "black", borderRadius: 12 }}>
-        <h2 style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "1rem", marginBottom: "2rem" }}>Patient Adherence Report</h2>
+        <h2 style={{ borderBottom: "2px solid var(--border)", paddingBottom: "1rem", marginBottom: "2rem" }}>Patient Adherence Report</h2>
         
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginBottom: "2rem" }}>
           <div>
@@ -96,27 +96,27 @@ export default function ClinicianReports() {
           </div>
         </div>
 
-        <div style={{ marginBottom: "2rem", padding: "1.5rem", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+        <div style={{ marginBottom: "2rem", padding: "1.5rem", background: "var(--bg-card)", borderRadius: 8, border: "1px solid var(--border)" }}>
           <h3 style={{ margin: "0 0 1rem" }}>Clinical Summary</h3>
           <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>{ins.summary}</p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
-          <div style={{ padding: "1rem", border: "1px solid #e2e8f0", borderRadius: 8 }}>
-            <h4 style={{ margin: "0 0 0.5rem", color: "#64748b" }}>Overall Adherence</h4>
+          <div style={{ padding: "1rem", border: "1px solid var(--border)", borderRadius: 8 }}>
+            <h4 style={{ margin: "0 0 0.5rem", color: "var(--text-muted)" }}>Overall Adherence</h4>
             <div style={{ fontSize: "2rem", fontWeight: 800 }}>{ins.adherencePercent}%</div>
           </div>
-          <div style={{ padding: "1rem", border: "1px solid #e2e8f0", borderRadius: 8 }}>
-            <h4 style={{ margin: "0 0 0.5rem", color: "#64748b" }}>Risk Stratification</h4>
+          <div style={{ padding: "1rem", border: "1px solid var(--border)", borderRadius: 8 }}>
+            <h4 style={{ margin: "0 0 0.5rem", color: "var(--text-muted)" }}>Risk Stratification</h4>
             <div style={{ fontSize: "1.5rem", fontWeight: 800, textTransform: "uppercase" }}>{ins.level}</div>
           </div>
-          <div style={{ padding: "1rem", border: "1px solid #e2e8f0", borderRadius: 8 }}>
-            <h4 style={{ margin: "0 0 0.5rem", color: "#64748b" }}>Recent Trend</h4>
+          <div style={{ padding: "1rem", border: "1px solid var(--border)", borderRadius: 8 }}>
+            <h4 style={{ margin: "0 0 0.5rem", color: "var(--text-muted)" }}>Recent Trend</h4>
             <div style={{ fontSize: "1.5rem", fontWeight: 800, textTransform: "capitalize" }}>{ins.trendDirection}</div>
           </div>
         </div>
 
-        <h3 style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "0.5rem", marginBottom: "1rem" }}>Weekly Adherence Stats</h3>
+        <h3 style={{ borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem", marginBottom: "1rem" }}>Weekly Adherence Stats</h3>
         <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "2rem" }}>
           <thead>
             <tr style={{ background: "#f1f5f9", textAlign: "left" }}>
@@ -126,7 +126,7 @@ export default function ClinicianReports() {
           </thead>
           <tbody>
             {ins.trendData.map((pct, i) => (
-              <tr key={i} style={{ borderBottom: "1px solid #e2e8f0" }}>
+              <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
                 <td style={{ padding: "0.75rem" }}>Week {i + 1} (Recent)</td>
                 <td style={{ padding: "0.75rem" }}>{pct}%</td>
               </tr>
@@ -136,7 +136,7 @@ export default function ClinicianReports() {
 
         {ins.bestDay && ins.worstDay && (
           <div>
-            <h3 style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "0.5rem", marginBottom: "1rem" }}>Day of Week Insights</h3>
+            <h3 style={{ borderBottom: "1px solid var(--border)", paddingBottom: "0.5rem", marginBottom: "1rem" }}>Day of Week Insights</h3>
             <p><strong>Best adhering day:</strong> {ins.bestDay}</p>
             <p><strong>Lowest adhering day:</strong> {ins.worstDay}</p>
           </div>
@@ -173,7 +173,7 @@ export default function ClinicianReports() {
           <div style={{ flex: 1 }}>
             <label style={{ display: "block", marginBottom: 6, fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>Target Subject</label>
             <div style={{ position: "relative" }}>
-              <Users size={16} color="#64748b" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+              <Users size={16} color="var(--text-muted)" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
               <select 
                 value={selectedPatientId} 
                 onChange={(e) => setSelectedPatientId(e.target.value)}
@@ -189,7 +189,7 @@ export default function ClinicianReports() {
           <div style={{ flex: 1 }}>
             <label style={{ display: "block", marginBottom: 6, fontSize: "0.85rem", fontWeight: "bold", color: "var(--text-muted)" }}>Date Range</label>
             <div style={{ position: "relative" }}>
-              <Calendar size={16} color="#64748b" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+              <Calendar size={16} color="var(--text-muted)" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
               <select disabled style={{ width: "100%", padding: "0.65rem 1rem 0.65rem 2.2rem", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-card)", color: "var(--text-muted)", opacity: 0.8, outline: "none" }}>
                 <option>Last 4 Weeks (Auto-generated)</option>
               </select>
@@ -199,9 +199,9 @@ export default function ClinicianReports() {
       </div>
 
       <div style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", background: "#f1f5f9" }}>
-        <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "#64748b", textTransform: "uppercase", fontWeight: "bold", textAlign: "center" }}>Report Preview</p>
+        <p style={{ margin: "0 0 1rem", fontSize: "0.85rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: "bold", textAlign: "center" }}>Report Preview</p>
         {loading ? (
-          <p style={{ textAlign: "center", color: "#64748b" }}>Loading report data...</p>
+          <p style={{ textAlign: "center", color: "var(--text-muted)" }}>Loading report data...</p>
         ) : (
           <ReportView />
         )}

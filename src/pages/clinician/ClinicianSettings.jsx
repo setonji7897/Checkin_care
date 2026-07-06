@@ -1,4 +1,4 @@
-// src/pages/clinician/ClinicianSettings.jsx
+﻿// src/pages/clinician/ClinicianSettings.jsx
 import { useState, useEffect } from "react";
 import { updatePassword } from "firebase/auth";
 import { useAuth } from "../../contexts/AuthContext";
@@ -61,20 +61,20 @@ export default function ClinicianSettings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Dark Mode</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Switch to a darker colour palette</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Dark Mode</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Switch to a darker colour palette</span>
               </div>
-              <button onClick={toggleDarkMode} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: darkMode ? '#2563eb' : '#e5e7eb', position: 'relative' }}>
+              <button onClick={toggleDarkMode} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: darkMode ? '#2563eb' : 'var(--border)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '2px', left: darkMode ? '24px' : '2px', width: '24px', height: '24px', borderRadius: '50%', background: 'white', transition: 'left 0.3s' }} />
               </button>
             </div>
             <hr style={{ border: 'none', borderTop: '1px solid #f3f4f6', margin: 0 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Large Text</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Increase text size for easier reading</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Large Text</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Increase text size for easier reading</span>
               </div>
-              <button onClick={toggleLargeText} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: largeText ? '#2563eb' : '#e5e7eb', position: 'relative' }}>
+              <button onClick={toggleLargeText} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: largeText ? '#2563eb' : 'var(--border)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '2px', left: largeText ? '24px' : '2px', width: '24px', height: '24px', borderRadius: '50%', background: 'white', transition: 'left 0.3s' }} />
               </button>
             </div>
@@ -88,20 +88,20 @@ export default function ClinicianSettings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Critical Push Notifications</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Receive alerts when high-risk patients miss doses</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Critical Push Notifications</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Receive alerts when high-risk patients miss doses</span>
               </div>
-              <button onClick={() => handleToggle("pushNotifications")} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: preferences.pushNotifications ? '#2563eb' : '#e5e7eb', position: 'relative' }}>
+              <button onClick={() => handleToggle("pushNotifications")} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: preferences.pushNotifications ? '#2563eb' : 'var(--border)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '2px', left: preferences.pushNotifications ? '24px' : '2px', width: '24px', height: '24px', borderRadius: '50%', background: 'white', transition: 'left 0.3s' }} />
               </button>
             </div>
             <hr style={{ border: 'none', borderTop: '1px solid #f3f4f6', margin: 0 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Email Reports</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Get weekly compliance digests via email</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Email Reports</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Get weekly compliance digests via email</span>
               </div>
-              <button onClick={() => handleToggle("emailAlerts")} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: preferences.emailAlerts ? '#2563eb' : '#e5e7eb', position: 'relative' }}>
+              <button onClick={() => handleToggle("emailAlerts")} style={{ width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer', background: preferences.emailAlerts ? '#2563eb' : 'var(--border)', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '2px', left: preferences.emailAlerts ? '24px' : '2px', width: '24px', height: '24px', borderRadius: '50%', background: 'white', transition: 'left 0.3s' }} />
               </button>
             </div>
@@ -122,7 +122,7 @@ export default function ClinicianSettings() {
             {passwordStatus.message && (
               <div style={{ padding: '0.75rem', borderRadius: '8px', background: passwordStatus.error ? '#fef2f2' : '#ecfdf5', color: passwordStatus.error ? '#ef4444' : '#10b981', fontSize: '0.85rem' }}>{passwordStatus.message}</div>
             )}
-            <button type="submit" disabled={passwordStatus.loading} style={{ background: '#1a1a2e', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', opacity: passwordStatus.loading ? 0.7 : 1, alignSelf: 'flex-start' }}>
+            <button type="submit" disabled={passwordStatus.loading} style={{ background: 'var(--text-primary)', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', opacity: passwordStatus.loading ? 0.7 : 1, alignSelf: 'flex-start' }}>
               {passwordStatus.loading ? "Updating..." : "Update Password"}
             </button>
           </form>

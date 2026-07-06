@@ -1,4 +1,4 @@
-// src/pages/clinician/PatientDetail.jsx
+﻿// src/pages/clinician/PatientDetail.jsx
 //
 // PURPOSE: Complete detail view of a single patient for clinicians. Includes profile,
 // medications prescibed vs self-prescribed, real-time adherence rate calculations,
@@ -177,7 +177,7 @@ export default function PatientDetail() {
             style={{ padding: "0.6rem 1.2rem", fontSize: "0.9rem" }}
             onClick={() => navigate(`/clinician/patients/${patientId}/add-medication`)}
           >
-            ➕ Prescribe Medication
+            âž• Prescribe Medication
           </button>
         </header>
 
@@ -188,11 +188,11 @@ export default function PatientDetail() {
             <span style={{ 
               fontSize: "2.5rem", 
               fontWeight: 800, 
-              color: adherenceStats.rate === null ? "#6b7280" : (adherenceStats.rate >= 80 ? "#10b981" : (adherenceStats.rate >= 50 ? "#f59e0b" : "#ef4444")) 
+              color: adherenceStats.rate === null ? "var(--text-muted)" : (adherenceStats.rate >= 80 ? "#10b981" : (adherenceStats.rate >= 50 ? "#f59e0b" : "#ef4444")) 
             }}>
               {adherenceStats.rate !== null ? `${adherenceStats.rate}%` : "No data"}
             </span>
-            <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
               Taken: {adherenceStats.taken} | Missed: {adherenceStats.missed} | Skipped: {adherenceStats.skipped}
             </p>
           </div>
@@ -201,9 +201,9 @@ export default function PatientDetail() {
           <div className="dash-card placeholder-card">
             <h3>Caregiver Assignment</h3>
             {assignedCaregiver ? (
-              <p>🟢 Assigned to: <strong>{assignedCaregiver.fullName}</strong> ({assignedCaregiver.email})</p>
+              <p>ðŸŸ¢ Assigned to: <strong>{assignedCaregiver.fullName}</strong> ({assignedCaregiver.email})</p>
             ) : (
-              <p style={{ color: "#6b7280" }}>No caregiver assigned yet.</p>
+              <p style={{ color: "var(--text-muted)" }}>No caregiver assigned yet.</p>
             )}
             
             <form onSubmit={handleAssignCaregiver} style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
@@ -212,7 +212,7 @@ export default function PatientDetail() {
                 placeholder="caregiver@email.com"
                 value={caregiverEmail}
                 onChange={e => setCaregiverEmail(e.target.value)}
-                style={{ padding: "0.4rem 0.8rem", border: "1.5px solid #e5e7eb", borderRadius: "10px", flex: 1, fontSize: "0.85rem" }}
+                style={{ padding: "0.4rem 0.8rem", border: "1.5px solid var(--border)", borderRadius: "10px", flex: 1, fontSize: "0.85rem" }}
               />
               <button 
                 type="submit" 
@@ -232,7 +232,7 @@ export default function PatientDetail() {
         <section style={{ marginBottom: "2rem" }}>
           <h2>Medication List</h2>
           {medications.length === 0 ? (
-            <p style={{ color: "#6b7280", marginTop: "0.5rem" }}>No prescribed medications yet.</p>
+            <p style={{ color: "var(--text-muted)", marginTop: "0.5rem" }}>No prescribed medications yet.</p>
           ) : (
             <div className="coming-soon-grid" style={{ marginTop: "1rem" }}>
               {medications.map(med => (
@@ -264,12 +264,12 @@ export default function PatientDetail() {
         <section>
           <h2>Recent Adherence Logs (Last 14 Days)</h2>
           {logs.length === 0 ? (
-            <p style={{ color: "#6b7280", marginTop: "0.5rem" }}>No adherence logs found.</p>
+            <p style={{ color: "var(--text-muted)", marginTop: "0.5rem" }}>No adherence logs found.</p>
           ) : (
-            <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: "14px", overflow: "hidden", marginTop: "1rem" }}>
+            <div style={{ background: "#fff", border: "1px solid var(--border)", borderRadius: "14px", overflow: "hidden", marginTop: "1rem" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
                 <thead>
-                  <tr style={{ background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
+                  <tr style={{ background: "#f9fafb", borderBottom: "1px solid var(--border)" }}>
                     <th style={{ padding: "1rem" }}>Date</th>
                     <th style={{ padding: "1rem" }}>Medication</th>
                     <th style={{ padding: "1rem" }}>Scheduled Slot</th>
@@ -278,7 +278,7 @@ export default function PatientDetail() {
                 </thead>
                 <tbody>
                   {logs.slice(0, 30).map(log => (
-                    <tr key={log.id} style={{ borderBottom: "1px solid #e5e7eb" }}>
+                    <tr key={log.id} style={{ borderBottom: "1px solid var(--border)" }}>
                       <td style={{ padding: "1rem" }}>{log.scheduledDate}</td>
                       <td style={{ padding: "1rem" }}><strong>{log.medicationName}</strong></td>
                       <td style={{ padding: "1rem" }}>{log.scheduledTime}</td>

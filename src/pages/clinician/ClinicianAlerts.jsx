@@ -1,17 +1,18 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, Bell, CheckCircle2, MessageSquare } from "lucide-react";
 import { ref, query, orderByChild, equalTo, onValue, update, push, set, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
+import { getPatientUid, writeUserNotification } from "../../utils/backendData";
 import "../../styles/dashboard.css";
 
-export default function CaregiverAlerts() {
+export default function ClinicianAlerts() {
   const { currentUser } = useAuth();
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
     if (!currentUser) return;
-    const alertsQuery = query(ref(db, "alerts"), orderByChild("caregiverId"), equalTo(currentUser.uid));
+    const alertsQuery = query(ref(db, "alerts"), orderByChild("clinicianId"), equalTo(currentUser.uid));
     const unsub = onValue(alertsQuery, (snapshot) => {
       const list = [];
       snapshot.forEach(child => {
@@ -27,26 +28,25 @@ export default function CaregiverAlerts() {
   const sendReminder = async (alert) => {
     const patientSnap = await get(ref(db, "patients/" + alert.patientId));
     const patient = patientSnap.exists() ? patientSnap.val() : {};
-    const patientUid = patient.linkedUid || patient.uid || alert.patientId;
-    await set(push(ref(db, "notifications/" + patientUid)), {
+    const patientUid = getPatientUid(patient, alert.patientId);
+    
+    await writeUserNotification(patientUid, {
       type: "reminder",
-      title: "Medication reminder",
+      title: "Clinician Reminder",
       body: "Please check your schedule for " + (alert.medicationName || "your medication") + ".",
-      timestamp: Date.now(),
-      read: false,
       actionRoute: "/patient/schedule"
     });
   };
 
-  const notifyClinician = async (alert) => {
-    if (!alert.clinicianId) return;
-    await set(push(ref(db, "notifications/" + alert.clinicianId)), {
-      type: "caregiver_alert",
-      title: "Caregiver alert",
-      body: (alert.patientName || "A patient") + " needs attention for " + (alert.medicationName || "a medication") + ".",
+  const notifyCaregiver = async (alert) => {
+    if (!alert.caregiverId) return;
+    await set(push(ref(db, "notifications/" + alert.caregiverId)), {
+      type: "clinician_alert",
+      title: "Clinician Alert",
+      body: (alert.patientName || "A patient") + " needs attention for " + (alert.medicationName || "a medication") + ". Please review.",
       timestamp: Date.now(),
       read: false,
-      actionRoute: "/clinician/patients/" + alert.patientId
+      actionRoute: "/caregiver/alerts"
     });
   };
 
@@ -59,7 +59,7 @@ export default function CaregiverAlerts() {
       <header className="dash-header">
         <div>
           <h1>Active Alerts</h1>
-          <p className="dash-sub">Critical missed medications and warnings</p>
+          <p className="dash-sub">Critical missed medications and patient warnings</p>
         </div>
       </header>
 
@@ -81,13 +81,15 @@ export default function CaregiverAlerts() {
                 </div>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
-                <button onClick={() => sendReminder(alert)} className="btn-primary" style={{ padding: "0.55rem 0.85rem" }}>
+                <button onClick={() => sendReminder(alert)} className="primary-btn" style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem" }}>
                   <Bell size={16} /> Send Reminder
                 </button>
-                <button onClick={() => notifyClinician(alert)} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg-card)", color: "var(--text-primary)", cursor: "pointer", fontWeight: 700 }}>
-                  <MessageSquare size={16} /> Notify Clinician
-                </button>
-                <button onClick={() => resolveAlert(alert.id)} style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem", borderRadius: "10px", border: "1px solid var(--border)", background: "var(--bg-card)", color: "#10b981", cursor: "pointer", fontWeight: 700 }}>
+                {alert.caregiverId && (
+                  <button onClick={() => notifyCaregiver(alert)} className="outline-btn" style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem" }}>
+                    <MessageSquare size={16} /> Notify Caregiver
+                  </button>
+                )}
+                <button onClick={() => resolveAlert(alert.id)} className="outline-btn" style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 0.85rem", color: "#10b981", borderColor: "#10b981" }}>
                   <CheckCircle2 size={16} /> Resolve
                 </button>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { Search, ChevronDown, ChevronRight, Pill, AlertTriangle, CalendarPlus, XCircle, Edit, Save, X } from "lucide-react";
 import { ref, onValue, update, child } from "firebase/database";
 import { db } from "../../firebase/config";
@@ -161,7 +161,7 @@ export default function ClinicianMedicationManagement() {
       {/* Search and List */}
       <div className="dash-card">
         <div style={{ position: "relative", marginBottom: "1.5rem" }}>
-          <Search size={18} color="#64748b" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
+          <Search size={18} color="var(--text-muted)" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)" }} />
           <input
             type="text"
             placeholder="Search by patient or medication name..."
@@ -195,7 +195,7 @@ export default function ClinicianMedicationManagement() {
                         <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>{meds.length} medications</div>
                       </div>
                     </div>
-                    {isExpanded ? <ChevronDown size={20} color="#64748b" /> : <ChevronRight size={20} color="#64748b" />}
+                    {isExpanded ? <ChevronDown size={20} color="var(--text-muted)" /> : <ChevronRight size={20} color="var(--text-muted)" />}
                   </button>
                   
                   {isExpanded && (
@@ -233,7 +233,7 @@ export default function ClinicianMedicationManagement() {
                                 </td>
                                 <td style={{ padding: "0.75rem 0.5rem" }}>
                                   {isDiscontinued ? (
-                                    <span style={{ padding: "2px 6px", borderRadius: 4, background: "#f1f5f9", color: "#64748b", fontSize: "0.75rem", fontWeight: "bold" }}>Discontinued</span>
+                                    <span style={{ padding: "2px 6px", borderRadius: 4, background: "#f1f5f9", color: "var(--text-muted)", fontSize: "0.75rem", fontWeight: "bold" }}>Discontinued</span>
                                   ) : (
                                     <span style={{ padding: "2px 6px", borderRadius: 4, background: "#dcfce7", color: "#166534", fontSize: "0.75rem", fontWeight: "bold" }}>Active</span>
                                   )}

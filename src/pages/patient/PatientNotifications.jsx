@@ -1,4 +1,4 @@
-// src/pages/patient/PatientNotifications.jsx
+﻿// src/pages/patient/PatientNotifications.jsx
 import NotificationsList from "../../components/NotificationsList";
 
 export default function PatientNotifications() {

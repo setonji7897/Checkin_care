@@ -1,4 +1,4 @@
-// src/pages/patient/PatientSettings.jsx
+﻿// src/pages/patient/PatientSettings.jsx
 import { useState, useEffect } from "react";
 import { updatePassword } from "firebase/auth";
 import { ref, get, set, update } from "firebase/database";
@@ -10,10 +10,10 @@ import "../../styles/dashboard.css";
 
 const SOUNDS = [
   { name: "Default Chime", emoji: "🔔" },
-  { name: "Gentle Bell", emoji: "🛎️" },
-  { name: "Double Beep", emoji: "📱" },
-  { name: "Rising Sweep", emoji: "🪄" },
-  { name: "Marimba", emoji: "🎹" }
+  { name: "Gentle Bell", emoji: "ðŸ›Žï¸" },
+  { name: "Double Beep", emoji: "ðŸ“±" },
+  { name: "Rising Sweep", emoji: "ðŸª„" },
+  { name: "Marimba", emoji: "ðŸŽ¹" }
 ];
 
 const playChime = (index = 0) => {
@@ -218,14 +218,14 @@ export default function PatientSettings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Dark Mode</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Switch to a darker colour palette</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Dark Mode</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Switch to a darker colour palette</span>
               </div>
               <button 
                 onClick={toggleDarkMode}
                 style={{ 
                   width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-                  background: darkMode ? '#10b981' : '#e5e7eb', position: 'relative', transition: 'background 0.3s'
+                  background: darkMode ? '#10b981' : 'var(--border)', position: 'relative', transition: 'background 0.3s'
                 }}
               >
                 <div style={{
@@ -239,14 +239,14 @@ export default function PatientSettings() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Large Text</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Increase text size for easier reading</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Large Text</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Increase text size for easier reading</span>
               </div>
               <button 
                 onClick={toggleLargeText}
                 style={{ 
                   width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-                  background: largeText ? '#10b981' : '#e5e7eb', position: 'relative', transition: 'background 0.3s'
+                  background: largeText ? '#10b981' : 'var(--border)', position: 'relative', transition: 'background 0.3s'
                 }}
               >
                 <div style={{
@@ -269,14 +269,14 @@ export default function PatientSettings() {
             {/* Push Toggle */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Push Notifications</strong>
-                <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Receive alerts on your device screen</span>
+                <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Push Notifications</strong>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Receive alerts on your device screen</span>
               </div>
               <button 
                 onClick={handlePushToggle}
                 style={{ 
                   width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-                  background: notificationSettings.pushEnabled ? '#10b981' : '#e5e7eb', position: 'relative', transition: 'background 0.3s'
+                  background: notificationSettings.pushEnabled ? '#10b981' : 'var(--border)', position: 'relative', transition: 'background 0.3s'
                 }}
               >
                 <div style={{
@@ -295,8 +295,8 @@ export default function PatientSettings() {
                   <Mic size={18} color="#10b981" />
                 </div>
                 <div>
-                  <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Voice Reminders</strong>
-                  <span style={{ fontSize: '0.85rem', color: '#6b7280', display: "block", maxWidth: "250px" }}>
+                  <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Voice Reminders</strong>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: "block", maxWidth: "250px" }}>
                     Speaks medication name and dosage aloud at reminder time
                   </span>
                 </div>
@@ -305,7 +305,7 @@ export default function PatientSettings() {
                 onClick={handleVoiceToggle}
                 style={{ 
                   width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-                  background: notificationSettings.voiceEnabled ? '#10b981' : '#e5e7eb', position: 'relative', transition: 'background 0.3s'
+                  background: notificationSettings.voiceEnabled ? '#10b981' : 'var(--border)', position: 'relative', transition: 'background 0.3s'
                 }}
               >
                 <div style={{
@@ -317,7 +317,7 @@ export default function PatientSettings() {
 
             {/* Voice Settings Sub-menu */}
             {notificationSettings.voiceEnabled && (
-              <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "1rem", marginLeft: "2.5rem" }}>
+              <div style={{ background: "var(--bg-card)", padding: "1rem", borderRadius: "12px", display: "flex", flexDirection: "column", gap: "1rem", marginLeft: "2.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                   <div style={{ flex: 1 }}>
                     <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "#475569", marginBottom: "0.5rem", display: "block" }}>Voice Speed ({notificationSettings.voiceSpeed}x)</label>
@@ -330,7 +330,7 @@ export default function PatientSettings() {
                   </div>
                   <button 
                     onClick={handlePreviewVoice}
-                    style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.8rem", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}
+                    style={{ background: "var(--border)", border: "none", padding: "0.4rem 0.8rem", borderRadius: "8px", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}
                   >
                     <Play size={14} /> Preview
                   </button>
@@ -340,7 +340,7 @@ export default function PatientSettings() {
                   <select 
                     value={notificationSettings.voiceURI}
                     onChange={e => updateFirebaseSetting("voiceURI", e.target.value)}
-                    style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid #cbd5e1", outline: "none" }}
+                    style={{ width: "100%", padding: "0.5rem", borderRadius: "8px", border: "1px solid var(--border)", outline: "none" }}
                   >
                     {voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name}</option>)}
                   </select>
@@ -357,8 +357,8 @@ export default function PatientSettings() {
                   <Volume2 size={18} color="#2563eb" />
                 </div>
                 <div>
-                  <strong style={{ display: 'block', color: '#1a1a2e', marginBottom: '0.25rem' }}>Alert Sounds</strong>
-                  <span style={{ fontSize: '0.85rem', color: '#6b7280', display: "block", maxWidth: "250px" }}>
+                  <strong style={{ display: 'block', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Alert Sounds</strong>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', display: "block", maxWidth: "250px" }}>
                     Plays a short audio chime at reminder time — no speech
                   </span>
                 </div>
@@ -367,7 +367,7 @@ export default function PatientSettings() {
                 onClick={handleAlertToggle}
                 style={{ 
                   width: '50px', height: '28px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-                  background: notificationSettings.alertEnabled ? '#2563eb' : '#e5e7eb', position: 'relative', transition: 'background 0.3s'
+                  background: notificationSettings.alertEnabled ? '#2563eb' : 'var(--border)', position: 'relative', transition: 'background 0.3s'
                 }}
               >
                 <div style={{
@@ -392,7 +392,7 @@ export default function PatientSettings() {
                         }}
                         style={{
                           minWidth: "120px", padding: "0.75rem", borderRadius: "12px", cursor: "pointer",
-                          border: isSelected ? "2px solid #2563eb" : "1.5px solid #e2e8f0",
+                          border: isSelected ? "2px solid #2563eb" : "1.5px solid var(--border)",
                           background: isSelected ? "#eff6ff" : "white",
                           textAlign: "center", transition: "all 0.2s"
                         }}
@@ -449,7 +449,7 @@ export default function PatientSettings() {
               type="submit" 
               disabled={passwordStatus.loading}
               style={{ 
-                background: '#1a1a2e', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer',
+                background: 'var(--text-primary)', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer',
                 opacity: passwordStatus.loading ? 0.7 : 1, alignSelf: 'flex-start'
               }}
             >

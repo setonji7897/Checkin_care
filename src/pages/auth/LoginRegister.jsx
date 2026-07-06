@@ -1,4 +1,4 @@
-// src/pages/auth/LoginRegister.jsx
+﻿// src/pages/auth/LoginRegister.jsx
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";

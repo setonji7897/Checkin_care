@@ -1,4 +1,4 @@
-// src/components/AuroraBackground.jsx
+﻿// src/components/AuroraBackground.jsx
 // Framer-motion powered aurora blobs — used in the login left panel
 import { motion } from "framer-motion";
 import "../styles/auth.css";

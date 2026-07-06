@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+﻿import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import EmptyRoomState from "./EmptyRoomState";
 

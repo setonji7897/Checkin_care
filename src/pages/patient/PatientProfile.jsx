@@ -84,19 +84,18 @@ export default function PatientProfile() {
         phone: formData.phone
       });
 
-      // 2. Update patient specific profile (if exists)
-      if (patientId) {
-        const patientRef = ref(db, `patients/${patientId}`);
-        await update(patientRef, {
-          age: formData.age,
-          gender: formData.gender,
-          medicalConditions: formData.medicalConditions,
-          emergencyContact: {
-            name: formData.emergencyContactName,
-            phone: formData.emergencyContactPhone
-          }
-        });
-      }
+      const pId = patientId || currentUser.uid;
+      const patientRef = ref(db, `patients/${pId}`);
+      await update(patientRef, {
+        linkedUid: currentUser.uid,
+        age: formData.age,
+        gender: formData.gender,
+        medicalConditions: formData.medicalConditions,
+        emergencyContact: {
+          name: formData.emergencyContactName,
+          phone: formData.emergencyContactPhone
+        }
+      });
       
       alert("Profile updated successfully!");
     } catch (err) {
@@ -123,7 +122,7 @@ export default function PatientProfile() {
           
           {/* General Information */}
           <section>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: '#1a1a2e', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
               <User size={18} color="#6c63ff" /> Personal Information
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -151,7 +150,7 @@ export default function PatientProfile() {
               </div>
               <div className="input-group">
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#4b5563', marginBottom: '0.25rem' }}>Email (Read Only)</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', color: '#6b7280' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: '#f9fafb', color: 'var(--text-muted)' }}>
                   <Mail size={16} /> {currentUser.email}
                 </div>
               </div>
@@ -170,7 +169,7 @@ export default function PatientProfile() {
 
           {/* Medical Demographics */}
           <section>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: '#1a1a2e', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
               <HeartPulse size={18} color="#6c63ff" /> Medical Demographics
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -215,7 +214,7 @@ export default function PatientProfile() {
 
           {/* Emergency Contact */}
           <section>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: '#1a1a2e', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
               <AlertCircle size={18} color="#ef4444" /> Emergency Contact
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -242,7 +241,7 @@ export default function PatientProfile() {
             </div>
           </section>
 
-          <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0' }} />
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button 

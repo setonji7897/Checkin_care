@@ -43,9 +43,11 @@ export default function CaregiverProfile() {
     setSaving(true);
     try {
       await update(ref(db, `users/${currentUser.uid}`), { firstName: formData.firstName, lastName: formData.lastName, phone: formData.phone });
-      if (caregiverId) {
-        await update(ref(db, `caregivers/${caregiverId}`), { relationship: formData.relationship });
-      }
+      const cId = caregiverId || currentUser.uid;
+      await update(ref(db, `caregivers/${cId}`), { 
+        linkedUid: currentUser.uid,
+        relationship: formData.relationship 
+      });
       alert("Profile updated successfully!");
     } catch (err) {
       alert("Failed to update profile.");
@@ -67,7 +69,7 @@ export default function CaregiverProfile() {
       <div className="dash-card">
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <section>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: '#1a1a2e', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
               <User size={18} color="#059669" /> Personal Information
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -81,7 +83,7 @@ export default function CaregiverProfile() {
               </div>
               <div className="input-group">
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#4b5563', marginBottom: '0.25rem' }}>Email (Read Only)</label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', color: '#6b7280' }}><Mail size={16} /> {currentUser.email}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: '#f9fafb', color: 'var(--text-muted)' }}><Mail size={16} /> {currentUser.email}</div>
               </div>
               <div className="input-group">
                 <label style={{ display: 'block', fontSize: '0.85rem', color: '#4b5563', marginBottom: '0.25rem' }}>Phone</label>
@@ -91,7 +93,7 @@ export default function CaregiverProfile() {
           </section>
 
           <section>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: '#1a1a2e', fontSize: '1.1rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0 0 1rem', color: 'var(--text-primary)', fontSize: '1.1rem' }}>
               <ShieldAlert size={18} color="#059669" /> Caregiver Details
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
@@ -102,7 +104,7 @@ export default function CaregiverProfile() {
             </div>
           </section>
 
-          <hr style={{ border: 'none', borderTop: '1px solid #e5e7eb', margin: '0' }} />
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0' }} />
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <button type="submit" disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#059669', color: 'white', padding: '0.75rem 1.5rem', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}>
               <Save size={18} /> {saving ? "Saving..." : "Save Profile"}

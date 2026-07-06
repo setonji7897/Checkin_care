@@ -1,4 +1,4 @@
-// src/routes/ProtectedRoute.jsx
+﻿// src/routes/ProtectedRoute.jsx
 //
 // PURPOSE: A wrapper component that sits in front of any page that requires authentication.
 // Verifies if the active workspace role matches allowed routes.
@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
         <div style={{ textAlign: "center" }}>
           <img src={logoIcon} alt="CheckIn Care" style={{ width: 60, marginBottom: "1rem", animation: "pulse 1.5s ease infinite" }} />
-          <p style={{ color: "#64748b", fontSize: "0.9rem" }}>Loading your workspace...</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading your workspace...</p>
         </div>
       </div>
     );

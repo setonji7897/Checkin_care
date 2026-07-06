@@ -1,4 +1,4 @@
-// src/components/Sidebar.jsx
+﻿// src/components/Sidebar.jsx
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
@@ -147,7 +147,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           position: "absolute",
           bottom: "20px",
           right: "-16px",
-          background: "#0f172a",
+          background: "var(--text-primary)",
           border: "1px solid #1e293b",
           color: "white",
           borderRadius: "50%",

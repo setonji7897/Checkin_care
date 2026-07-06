@@ -1,8 +1,8 @@
-// src/pages/shared/MessagesPage.jsx
+﻿// src/pages/shared/MessagesPage.jsx
 //
 // PURPOSE: Unified 3-way messaging page used by all three roles.
 // Pass the currentUser's role as a prop from each role's router.
-// Works for Patient ↔ Clinician ↔ Caregiver conversations.
+// Works for Patient â†” Clinician â†” Caregiver conversations.
 
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,9 +25,9 @@ import {
   Loader2, CheckCheck, User
 } from "lucide-react";
 
-// ─── Avatar ──────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Avatar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Avatar({ name, role, size = 40 }) {
-  const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "#64748b" };
+  const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "var(--text-muted)" };
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%",
@@ -41,9 +41,9 @@ function Avatar({ name, role, size = 40 }) {
   );
 }
 
-// ─── Role badge ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Role badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function RoleBadge({ role }) {
-  const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "#64748b" };
+  const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "var(--text-muted)" };
   return (
     <span style={{
       background: colors.bg, color: colors.color,
@@ -55,7 +55,7 @@ function RoleBadge({ role }) {
   );
 }
 
-// ─── New Conversation Modal ───────────────────────────────────────────────────
+// â”€â”€â”€ New Conversation Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function NewConversationModal({ currentUser, userData, activeRole, onStart, onClose }) {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -180,7 +180,7 @@ function NewConversationModal({ currentUser, userData, activeRole, onStart, onCl
         animation: "slideUp 0.3s cubic-bezier(0.0,0,0.2,1)"
       }} onClick={e => e.stopPropagation()}>
         <div style={{ padding: "1.25rem 1.25rem 0" }}>
-          <h3 style={{ margin: "0 0 1rem", color: "#0f172a", fontSize: "1rem", fontWeight: 700 }}>
+          <h3 style={{ margin: "0 0 1rem", color: "var(--text-primary)", fontSize: "1rem", fontWeight: 700 }}>
             New Conversation
           </h3>
           <div style={{ position: "relative", marginBottom: "1rem" }}>
@@ -192,7 +192,7 @@ function NewConversationModal({ currentUser, userData, activeRole, onStart, onCl
               placeholder="Search contacts..."
               style={{
                 width: "100%", padding: "0.6rem 0.75rem 0.6rem 2.25rem",
-                border: "1.5px solid #e2e8f0", borderRadius: "10px",
+                border: "1.5px solid var(--border)", borderRadius: "10px",
                 fontSize: "0.875rem", outline: "none", fontFamily: "inherit"
               }}
             />
@@ -217,12 +217,12 @@ function NewConversationModal({ currentUser, userData, activeRole, onStart, onCl
                 padding: "0.75rem", borderRadius: "12px", cursor: "pointer",
                 transition: "background 0.15s", marginBottom: "0.25rem"
               }}
-              onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--bg-card)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
             >
               <Avatar name={contact.displayName || contact.email} role={contact.role} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, color: "#0f172a", fontSize: "0.9rem" }}>
+                <div style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: "0.9rem" }}>
                   {contact.displayName || contact.email}
                 </div>
                 <RoleBadge role={contact.role} />
@@ -235,7 +235,7 @@ function NewConversationModal({ currentUser, userData, activeRole, onStart, onCl
   );
 }
 
-// ─── Chat Window ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Chat Window â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ChatWindow({ conversation, currentUser, onBack }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -301,7 +301,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
           onClick={onBack}
           style={{
             background: "none", border: "none", cursor: "pointer",
-            color: "#64748b", display: "flex", alignItems: "center",
+            color: "var(--text-muted)", display: "flex", alignItems: "center",
             padding: "4px"
           }}
         >
@@ -309,7 +309,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
         </button>
         {other && <Avatar name={other.name} role={other.role} size={38} />}
         <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 700, color: "#0f172a", fontSize: "0.95rem" }}>
+          <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.95rem" }}>
             {other?.name || "Unknown"}
           </div>
           {other && <RoleBadge role={other.role} />}
@@ -320,7 +320,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
       <div style={{
         flex: 1, overflowY: "auto", padding: "1rem",
         display: "flex", flexDirection: "column", gap: "0.75rem",
-        background: "#f8fafc"
+        background: "var(--bg-card)"
       }}>
         {Object.entries(groupedMessages).map(([date, msgs]) => (
           <div key={date}>
@@ -359,12 +359,12 @@ function ChatWindow({ conversation, currentUser, onBack }) {
                       background: isMine
                         ? "linear-gradient(135deg, #2563eb, #1d4ed8)"
                         : "white",
-                      color: isMine ? "white" : "#0f172a",
+                      color: isMine ? "white" : "var(--text-primary)",
                       borderRadius: isMine ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
                       padding: "0.6rem 0.9rem",
                       fontSize: "0.875rem", lineHeight: "1.5",
                       boxShadow: isMine ? "none" : "0 2px 8px rgba(0,0,0,0.06)",
-                      border: isMine ? "none" : "1px solid #e2e8f0",
+                      border: isMine ? "none" : "1px solid var(--border)",
                       wordBreak: "break-word"
                     }}>
                       {msg.text}
@@ -414,15 +414,15 @@ function ChatWindow({ conversation, currentUser, onBack }) {
           placeholder={"Message " + (other?.name || "...")}
           rows={1}
           style={{
-            flex: 1, border: "1.5px solid #e2e8f0", borderRadius: "12px",
+            flex: 1, border: "1.5px solid var(--border)", borderRadius: "12px",
             padding: "0.6rem 0.875rem", fontSize: "0.875rem",
             fontFamily: "inherit", resize: "none", outline: "none",
             maxHeight: "120px", overflowY: "auto",
-            background: "#f8fafc", lineHeight: "1.5",
+            background: "var(--bg-card)", lineHeight: "1.5",
             transition: "border-color 0.15s"
           }}
           onFocus={e => e.target.style.borderColor = "#2563eb"}
-          onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+          onBlur={e => e.target.style.borderColor = "var(--border)"}
         />
         <button
           onClick={handleSend}
@@ -431,7 +431,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
             width: "42px", height: "42px", borderRadius: "12px", flexShrink: 0,
             background: input.trim() && !sending
               ? "linear-gradient(135deg, #2563eb, #1d4ed8)"
-              : "#e2e8f0",
+              : "var(--border)",
             border: "none",
             cursor: input.trim() && !sending ? "pointer" : "not-allowed",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -448,7 +448,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
   );
 }
 
-// ─── Conversation List ────────────────────────────────────────────────────────
+// â”€â”€â”€ Conversation List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ConversationList({ conversations, currentUser, activeConvId, onSelect, onNew }) {
   const [search, setSearch] = useState("");
 
@@ -465,7 +465,7 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
         borderBottom: "1px solid #f1f5f9", flexShrink: 0
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.875rem" }}>
-          <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>Messages</h2>
+          <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)" }}>Messages</h2>
           <button
             onClick={onNew}
             style={{
@@ -487,9 +487,9 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
             placeholder="Search messages..."
             style={{
               width: "100%", padding: "0.55rem 0.75rem 0.55rem 2rem",
-              border: "1.5px solid #e2e8f0", borderRadius: "10px",
+              border: "1.5px solid var(--border)", borderRadius: "10px",
               fontSize: "0.8rem", outline: "none", fontFamily: "inherit",
-              background: "#f8fafc"
+              background: "var(--bg-card)"
             }}
           />
         </div>
@@ -527,13 +527,13 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
                 borderLeft: isActive ? "3px solid #2563eb" : "3px solid transparent",
                 cursor: "pointer", transition: "all 0.15s"
               }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "#f8fafc"; }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = "var(--bg-card)"; }}
               onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
             >
               <Avatar name={other?.name} role={other?.role} size={42} />
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontWeight: unread > 0 ? 700 : 600, color: "#0f172a", fontSize: "0.875rem" }}>
+                  <span style={{ fontWeight: unread > 0 ? 700 : 600, color: "var(--text-primary)", fontSize: "0.875rem" }}>
                     {other?.name || "Unknown"}
                   </span>
                   <span style={{ fontSize: "0.7rem", color: "#94a3b8", flexShrink: 0 }}>
@@ -542,7 +542,7 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2px" }}>
                   <span style={{
-                    fontSize: "0.8rem", color: unread > 0 ? "#0f172a" : "#94a3b8",
+                    fontSize: "0.8rem", color: unread > 0 ? "var(--text-primary)" : "#94a3b8",
                     fontWeight: unread > 0 ? 500 : 400,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                     maxWidth: "160px"
@@ -571,7 +571,7 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
   );
 }
 
-// ─── Main MessagesPage ────────────────────────────────────────────────────────
+// â”€â”€â”€ Main MessagesPage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function MessagesPage({ activeRole }) {
   const { currentUser, userData } = useAuth();
   const [conversations, setConversations] = useState([]);
@@ -640,7 +640,7 @@ export default function MessagesPage({ activeRole }) {
     <>
       <div style={{
         display: "flex", height: "calc(100vh - 4rem)",
-        border: "1px solid #e2e8f0", borderRadius: "16px",
+        border: "1px solid var(--border)", borderRadius: "16px",
         overflow: "hidden", background: "white",
         boxShadow: "0 4px 20px rgba(0,0,0,0.05)"
       }}>
@@ -673,7 +673,7 @@ export default function MessagesPage({ activeRole }) {
               color: "#94a3b8", textAlign: "center", padding: "2rem"
             }}>
               <MessageSquarePlus size={52} style={{ marginBottom: "1rem", opacity: 0.35 }} />
-              <h3 style={{ color: "#0f172a", margin: "0 0 0.5rem", fontWeight: 700 }}>
+              <h3 style={{ color: "var(--text-primary)", margin: "0 0 0.5rem", fontWeight: 700 }}>
                 Your messages
               </h3>
               <p style={{ fontSize: "0.875rem", margin: "0 0 1.5rem", maxWidth: "300px" }}>

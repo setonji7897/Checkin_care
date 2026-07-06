@@ -1,4 +1,4 @@
-// src/components/WorkspaceSwitcher.jsx
+﻿// src/components/WorkspaceSwitcher.jsx
 //
 // PURPOSE: Dropdown profile panel component to switch active workspace environments dynamically.
 
@@ -40,7 +40,7 @@ export default function WorkspaceSwitcher() {
           padding: "0.6rem 0.9rem"
         }}
       >
-        <span>🔄 Switch Workspace</span>
+        <span>ðŸ”„ Switch Workspace</span>
         <span style={{ fontSize: "0.75rem", textTransform: "capitalize", background: "#6c63ff", padding: "0.1rem 0.4rem", borderRadius: "10px" }}>
           {activeRole}
         </span>
@@ -52,7 +52,7 @@ export default function WorkspaceSwitcher() {
           top: "110%",
           left: 0,
           right: 0,
-          background: "#1a1a2e",
+          background: "var(--text-primary)",
           border: "1px solid rgba(255,255,255,0.15)",
           borderRadius: "10px",
           boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
@@ -79,9 +79,9 @@ export default function WorkspaceSwitcher() {
                 fontWeight: r === activeRole ? 700 : 500
               }}
             >
-              {r === "patient" && "🧑‍⚕️ Patient Portal"}
-              {r === "caregiver" && "🤝 Caregiver Dashboard"}
-              {r === "clinician" && "👩‍🔬 Clinician Console"}
+              {r === "patient" && "ðŸ§‘â€âš•ï¸ Patient Portal"}
+              {r === "caregiver" && "ðŸ¤ Caregiver Dashboard"}
+              {r === "clinician" && "ðŸ‘©â€ðŸ”¬ Clinician Console"}
             </button>
           ))}
         </div>

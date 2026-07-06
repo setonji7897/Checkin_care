@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: "How does my caregiver see my information?",
-    a: "Your clinician links your account to a caregiver when they set up your profile. The caregiver can see your today's schedule, adherence score, and missed dose alerts — but they cannot change your prescriptions. Only your clinician can do that."
+    a: "Your clinician links your account to a caregiver when they set up your profile. The caregiver can see your today's schedule, adherence score, and missed dose alerts â€” but they cannot change your prescriptions. Only your clinician can do that."
   },
   {
     q: "How do I change my reminder time?",
@@ -38,7 +38,7 @@ const FAQS = [
   },
   {
     q: "Why aren't my notifications showing up?",
-    a: "First check Settings → Notifications & Audio and make sure Push Notifications is turned on. Then check your device/browser notification permissions — the browser must have permission to show notifications from this site. On Chrome, click the lock icon in the address bar to check."
+    a: "First check Settings â†’ Notifications & Audio and make sure Push Notifications is turned on. Then check your device/browser notification permissions â€” the browser must have permission to show notifications from this site. On Chrome, click the lock icon in the address bar to check."
   },
   {
     q: "What is my adherence score?",
@@ -54,20 +54,20 @@ function FAQItem({ item }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{
-      border: "1px solid #e2e8f0", borderRadius: "12px",
+      border: "1px solid var(--border)", borderRadius: "12px",
       overflow: "hidden", transition: "box-shadow 0.2s",
       boxShadow: open ? "0 4px 16px rgba(37,99,235,0.08)" : "none"
     }}>
       <button
         onClick={() => setOpen(!open)}
         style={{
-          width: "100%", background: open ? "#f0f7ff" : "white",
+          width: "100%", background: open ? "var(--sidebar-active-bg)" : "var(--bg-card)",
           border: "none", padding: "1rem 1.25rem",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           cursor: "pointer", textAlign: "left", transition: "background 0.2s"
         }}
       >
-        <span style={{ fontWeight: 600, color: "#0f172a", fontSize: "0.9rem", flex: 1, marginRight: "1rem" }}>
+        <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: "0.9rem", flex: 1, marginRight: "1rem" }}>
           {item.q}
         </span>
         <ChevronDown
@@ -83,7 +83,7 @@ function FAQItem({ item }) {
       }}>
         <p style={{
           padding: "0 1.25rem 1rem",
-          color: "#475569", fontSize: "0.875rem", lineHeight: "1.65", margin: 0
+          color: "var(--text-muted)", fontSize: "0.875rem", lineHeight: "1.65", margin: 0
         }}>
           {item.a}
         </p>
@@ -148,7 +148,7 @@ export default function HelpSupport() {
 
         {/* Care Triangle card */}
         <div style={{
-          background: "white", border: "1px solid #e2e8f0",
+          background: "var(--bg-card)", border: "1px solid var(--border)",
           borderRadius: "16px", padding: "1.5rem",
           display: "flex", flexDirection: "column", alignItems: "center",
           textAlign: "center", gap: "0.75rem",
@@ -178,18 +178,18 @@ export default function HelpSupport() {
             <Users size={24} color="#0d9488" />
           </div>
           <div>
-            <div style={{ color: "#0f172a", fontWeight: 700, fontSize: "1rem", marginBottom: "0.25rem" }}>
+            <div style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: "1rem", marginBottom: "0.25rem" }}>
               Care Triangle
             </div>
-            <div style={{ color: "#64748b", fontSize: "0.8rem" }}>
-              Group chat — you, your caregiver, and clinician
+            <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+              Group chat &mdash; you, your caregiver, and clinician
             </div>
           </div>
           <button
             onClick={() => navigate("/care-triangle")}
             style={{
-              background: "#f1f5f9",
-              border: "1px solid #e2e8f0", color: "#0f172a", borderRadius: "10px",
+              background: "transparent",
+              border: "1px solid var(--border)", color: "var(--text-primary)", borderRadius: "10px",
               padding: "0.6rem 1.25rem", fontSize: "0.875rem", fontWeight: 700,
               cursor: "pointer", transition: "all 0.2s"
             }}
@@ -217,7 +217,7 @@ export default function HelpSupport() {
               Call Support
             </div>
             <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "0.8rem" }}>
-              Available Mon–Fri, 8am–6pm
+              Available Mon&ndash;Fri, 8am&ndash;6pm
             </div>
           </div>
           <a
@@ -235,7 +235,7 @@ export default function HelpSupport() {
 
         {/* AI Chat card */}
         <div style={{
-          background: "white", border: "1px solid #e2e8f0",
+          background: "var(--bg-card)", border: "1px solid var(--border)",
           borderRadius: "16px", padding: "1.5rem",
           display: "flex", flexDirection: "column", alignItems: "center",
           textAlign: "center", gap: "0.75rem",
@@ -249,11 +249,11 @@ export default function HelpSupport() {
             <MessageCircle size={24} color="#2563eb" />
           </div>
           <div>
-            <div style={{ color: "#0f172a", fontWeight: 700, fontSize: "1rem", marginBottom: "0.25rem" }}>
-              Live Chat
+            <div style={{ color: "var(--text-primary)", fontWeight: 700, fontSize: "1rem", marginBottom: "0.25rem" }}>
+              AI Support Chat
             </div>
-            <div style={{ color: "#64748b", fontSize: "0.8rem" }}>
-              AI assistant · instant answers
+            <div style={{ color: "var(--text-muted)", fontSize: "0.8rem" }}>
+              AI assistant &middot; instant answers
             </div>
           </div>
           <button
@@ -274,7 +274,7 @@ export default function HelpSupport() {
       <div style={{ marginBottom: "2rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
           <HelpCircle size={18} color="#2563eb" />
-          <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#0f172a", margin: 0 }}>
+          <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>
             Frequently Asked Questions
           </h2>
         </div>
@@ -285,13 +285,13 @@ export default function HelpSupport() {
 
       {/* App info */}
       <div style={{
-        background: "#f8fafc", border: "1px solid #e2e8f0",
+        background: "var(--bg-card)", border: "1px solid var(--border)",
         borderRadius: "12px", padding: "1rem 1.25rem",
         display: "flex", justifyContent: "space-between", alignItems: "center",
         flexWrap: "wrap", gap: "0.5rem"
       }}>
-        <div style={{ fontSize: "0.8rem", color: "#64748b" }}>
-          CheckIn Care · Version 1.0.0 · Updated June 2026
+        <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+          CheckIn Care &middot; Version 1.0.0 &middot; Updated June 2026
         </div>
         <div style={{ display: "flex", gap: "1rem" }}>
           <button style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.8rem", fontWeight: 500, cursor: "pointer" }}>
@@ -332,9 +332,10 @@ export default function HelpSupport() {
           onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-          💬
+          ðŸ’¬
         </button>
       )}
     </div>
   );
 }
+

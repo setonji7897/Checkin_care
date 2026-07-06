@@ -53,6 +53,7 @@ import ClinicianAnalytics  from "./pages/clinician/ClinicianAnalytics";
 import ClinicianProfile    from "./pages/clinician/ClinicianProfile";
 import ClinicianSettings   from "./pages/clinician/ClinicianSettings";
 import ClinicianNotifications from "./pages/clinician/ClinicianNotifications";
+import ClinicianAlerts     from "./pages/clinician/ClinicianAlerts";
 import ClinicianHelp       from "./pages/clinician/ClinicianHelp";
 
 import logoIcon from "./assets/logo.png";
@@ -66,7 +67,7 @@ function HomeRedirect() {
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh" }}>
       <div style={{ textAlign: "center" }}>
         <img src={logoIcon} alt="CheckIn Care" style={{ width: 60, marginBottom: "1rem", animation: "pulse 1.5s ease infinite" }} />
-        <p style={{ color: "#64748b", fontSize: "0.9rem" }}>Loading your workspace...</p>
+        <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Loading your workspace...</p>
       </div>
     </div>
   );
@@ -148,6 +149,7 @@ export default function App() {
         <Route path="patients/:patientId" element={<PatientDetail />} />
         <Route path="patients/:patientId/add-medication" element={<ClinicianAddMedication />} />
         <Route path="medications" element={<ClinicianMedicationManagement />} />
+        <Route path="alerts" element={<ClinicianAlerts />} />
         <Route path="reports" element={<ClinicianReports />} />
         <Route path="messages" element={<MessagesPage activeRole="clinician" />} />
         <Route path="analytics" element={<ClinicianAnalytics />} />

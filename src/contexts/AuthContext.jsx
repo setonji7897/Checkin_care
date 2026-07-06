@@ -1,7 +1,7 @@
-// src/contexts/AuthContext.jsx
+﻿// src/contexts/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { ref, get } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import { auth, db } from "../firebase/config";
 
 const AuthContext = createContext(null);
@@ -18,39 +18,46 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeUserData = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         try {
-          const snapshot = await get(ref(db, `users/${user.uid}`));
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            setUserData(data);
-            
-            // Migrate old role formats to the current roles map shape.
-            const rolesMap = Array.isArray(data.roles)
-              ? data.roles.reduce((acc, role) => ({ ...acc, [role]: true }), {})
-              : data.roles || { [data.role || "patient"]: true };
-            setUserRoles(rolesMap);
+          const userRef = ref(db, `users/${user.uid}`);
+          unsubscribeUserData = onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              setUserData(data);
+              
+              // Migrate old role formats to the current roles map shape.
+              const rolesMap = Array.isArray(data.roles)
+                ? data.roles.reduce((acc, role) => ({ ...acc, [role]: true }), {})
+                : data.roles || { [data.role || "patient"]: true };
+              setUserRoles(rolesMap);
 
-            // Fetch stored session active role preference if it matches user's roles
-            const cachedRole = localStorage.getItem(`activeRole_${user.uid}`);
-            if (cachedRole && rolesMap[cachedRole]) {
-              setActiveRole(cachedRole);
+              setActiveRole(prevRole => {
+                const cachedRole = localStorage.getItem(`activeRole_${user.uid}`);
+                if (cachedRole && rolesMap[cachedRole]) {
+                  return cachedRole;
+                } else if (!prevRole || !rolesMap[prevRole]) {
+                  const firstRole = Object.keys(rolesMap).find(role => rolesMap[role] === true);
+                  return firstRole || null;
+                }
+                return prevRole;
+              });
             } else {
-              // Default to the first truthy role
-              const firstRole = Object.keys(rolesMap).find(role => rolesMap[role] === true);
-              setActiveRole(firstRole || null);
+              setUserData(null);
+              setUserRoles({});
+              setActiveRole(null);
             }
-          } else {
-            setUserData(null);
-            setUserRoles({});
-            setActiveRole(null);
-          }
+            setLoading(false);
+          });
         } catch (err) {
           console.error("Error setting up user workspace session:", err);
           setUserData(null);
           setUserRoles({});
           setActiveRole(null);
+          setLoading(false);
         }
         setCurrentUser(user);
       } else {
@@ -58,11 +65,20 @@ export function AuthProvider({ children }) {
         setUserData(null);
         setUserRoles({});
         setActiveRole(null);
+        if (unsubscribeUserData) {
+          unsubscribeUserData();
+          unsubscribeUserData = null;
+        }
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUserData) {
+        unsubscribeUserData();
+      }
+    };
   }, []);
 
   const updateActiveRole = (newRole) => {

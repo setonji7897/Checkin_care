@@ -1,4 +1,4 @@
-// src/pages/clinician/AddMedication.jsx
+﻿// src/pages/clinician/AddMedication.jsx
 //
 // PURPOSE: Adds medications to patients (Prescribed by Clinician).
 
@@ -197,7 +197,7 @@ export default function AddMedication() {
                 id="med-freq"
                 value={frequency}
                 onChange={e => setFrequency(e.target.value)}
-                style={{ padding: "0.7rem", border: "1.5px solid #e5e7eb", borderRadius: "14px", background: "#fff" }}
+                style={{ padding: "0.7rem", border: "1.5px solid var(--border)", borderRadius: "14px", background: "#fff" }}
               >
                 {FREQUENCIES.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
@@ -224,7 +224,7 @@ export default function AddMedication() {
                 id="med-food"
                 value={foodInstruction}
                 onChange={e => setFoodInstruction(e.target.value)}
-                style={{ padding: "0.7rem", border: "1.5px solid #e5e7eb", borderRadius: "14px", background: "#fff" }}
+                style={{ padding: "0.7rem", border: "1.5px solid var(--border)", borderRadius: "14px", background: "#fff" }}
               >
                 {FOOD_INSTRUCTIONS.map(i => <option key={i} value={i}>{i}</option>)}
               </select>

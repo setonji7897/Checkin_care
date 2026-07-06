@@ -1,4 +1,4 @@
-// src/pages/patient/AddMedication.jsx
+﻿// src/pages/patient/AddMedication.jsx
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ref, push, set, get, query, orderByChild, equalTo } from "firebase/database";
@@ -199,7 +199,7 @@ export default function AddMedication() {
         
         {/* Medication Name */}
         <div ref={refs.name}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
             Medication Name *
           </label>
           <input
@@ -213,7 +213,7 @@ export default function AddMedication() {
             className={errors.name ? "input-error shake" : ""}
             style={{
               width: "100%", padding: "0.75rem", borderRadius: "10px",
-              border: errors.name ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+              border: errors.name ? "2px solid #ef4444" : "1.5px solid var(--border)",
               outline: "none", fontSize: "0.95rem"
             }}
           />
@@ -226,7 +226,7 @@ export default function AddMedication() {
 
         {/* Dosage */}
         <div ref={refs.dosage}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
             Dosage *
           </label>
           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -243,7 +243,7 @@ export default function AddMedication() {
               className={errors.dosage && !formData.doseAmount ? "input-error shake" : ""}
               style={{
                 width: "35%", padding: "0.75rem", borderRadius: "10px",
-                border: errors.dosage && !formData.doseAmount ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+                border: errors.dosage && !formData.doseAmount ? "2px solid #ef4444" : "1.5px solid var(--border)",
                 outline: "none", fontSize: "0.95rem"
               }}
             />
@@ -256,7 +256,7 @@ export default function AddMedication() {
               className={errors.dosage && !formData.doseUnit ? "input-error shake" : ""}
               style={{
                 width: "65%", padding: "0.75rem", borderRadius: "10px",
-                border: errors.dosage && !formData.doseUnit ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+                border: errors.dosage && !formData.doseUnit ? "2px solid #ef4444" : "1.5px solid var(--border)",
                 outline: "none", fontSize: "0.95rem", background: "white"
               }}
             >
@@ -300,7 +300,7 @@ export default function AddMedication() {
 
         {/* Frequency */}
         <div ref={refs.frequency}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
             Frequency *
           </label>
           <div className={errors.frequency ? "shake" : ""} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.5rem" }}>
@@ -311,7 +311,7 @@ export default function AddMedication() {
                   key={freq.id}
                   onClick={() => handleFrequencyChange(freq.id)}
                   style={{
-                    border: isSelected ? "2px solid #2563eb" : (errors.frequency ? "2px solid #ef4444" : "1.5px solid #e2e8f0"),
+                    border: isSelected ? "2px solid #2563eb" : (errors.frequency ? "2px solid #ef4444" : "1.5px solid var(--border)"),
                     background: isSelected ? "#eff6ff" : "white",
                     padding: "1rem", borderRadius: "12px", cursor: "pointer",
                     textAlign: "center", transition: "all 0.2s",
@@ -333,7 +333,7 @@ export default function AddMedication() {
           
           {formData.frequency === "hours" && (
             <div ref={refs.frequencyHours} style={{ marginTop: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a", fontSize: "0.9rem" }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)", fontSize: "0.9rem" }}>
                 Every how many hours? *
               </label>
               <input
@@ -349,7 +349,7 @@ export default function AddMedication() {
                 className={errors.frequencyHours ? "input-error shake" : ""}
                 style={{
                   width: "150px", padding: "0.6rem 0.75rem", borderRadius: "8px",
-                  border: errors.frequencyHours ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+                  border: errors.frequencyHours ? "2px solid #ef4444" : "1.5px solid var(--border)",
                   outline: "none", fontSize: "0.95rem"
                 }}
               />
@@ -363,13 +363,13 @@ export default function AddMedication() {
         {/* Reminder Times */}
         {formData.reminderTimes.length > 0 && (
           <div>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
               Reminder Times *
             </label>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
               {formData.reminderTimes.map((time, idx) => (
                 <div key={idx} ref={el => refs.reminderTimes.current[idx] = el} style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                  <label style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>Dose {idx + 1} time</label>
+                  <label style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 500 }}>Dose {idx + 1} time</label>
                   <input
                     type="time"
                     value={time}
@@ -386,7 +386,7 @@ export default function AddMedication() {
                     className={errors.reminderTimes?.[idx] ? "shake" : ""}
                     style={{
                       padding: "0.6rem", borderRadius: "8px",
-                      border: errors.reminderTimes?.[idx] ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+                      border: errors.reminderTimes?.[idx] ? "2px solid #ef4444" : "1.5px solid var(--border)",
                       outline: "none", fontFamily: "inherit"
                     }}
                   />
@@ -402,7 +402,7 @@ export default function AddMedication() {
         {/* Dates */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <div ref={refs.startDate}>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
               Start Date *
             </label>
             <input
@@ -416,7 +416,7 @@ export default function AddMedication() {
               className={errors.startDate ? "input-error shake" : ""}
               style={{
                 width: "100%", padding: "0.75rem", borderRadius: "10px",
-                border: errors.startDate ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
+                border: errors.startDate ? "2px solid #ef4444" : "1.5px solid var(--border)",
                 outline: "none", fontFamily: "inherit"
               }}
             />
@@ -425,8 +425,8 @@ export default function AddMedication() {
           
           <div ref={refs.endDate}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <label style={{ fontWeight: 600, color: "#0f172a" }}>End Date</label>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.8rem", color: "#64748b", cursor: "pointer" }}>
+              <label style={{ fontWeight: 600, color: "var(--text-primary)" }}>End Date</label>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.8rem", color: "var(--text-muted)", cursor: "pointer" }}>
                 <input
                   type="checkbox"
                   checked={formData.noEndDate}
@@ -450,8 +450,8 @@ export default function AddMedication() {
               className={errors.endDate ? "input-error shake" : ""}
               style={{
                 width: "100%", padding: "0.75rem", borderRadius: "10px",
-                border: errors.endDate ? "2px solid #ef4444" : "1.5px solid #e2e8f0",
-                background: formData.noEndDate ? "#f8fafc" : "white",
+                border: errors.endDate ? "2px solid #ef4444" : "1.5px solid var(--border)",
+                background: formData.noEndDate ? "var(--bg-card)" : "white",
                 opacity: formData.noEndDate ? 0.6 : 1,
                 outline: "none", fontFamily: "inherit"
               }}
@@ -462,7 +462,7 @@ export default function AddMedication() {
 
         {/* Food Instructions */}
         <div ref={refs.foodInstruction}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
             Food Instructions *
           </label>
           <div className={errors.foodInstruction ? "shake" : ""} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
@@ -476,7 +476,7 @@ export default function AddMedication() {
                     if (errors.foodInstruction) setErrors(p => ({ ...p, foodInstruction: null }));
                   }}
                   style={{
-                    border: isSelected ? "2px solid #10b981" : (errors.foodInstruction ? "2px solid #ef4444" : "1.5px solid #e2e8f0"),
+                    border: isSelected ? "2px solid #10b981" : (errors.foodInstruction ? "2px solid #ef4444" : "1.5px solid var(--border)"),
                     background: isSelected ? "#ecfdf5" : "white",
                     padding: "0.875rem", borderRadius: "12px", cursor: "pointer",
                     textAlign: "center", transition: "all 0.2s"
@@ -498,7 +498,7 @@ export default function AddMedication() {
 
         {/* Notes */}
         <div>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "#0f172a" }}>
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600, color: "var(--text-primary)" }}>
             Notes (Optional)
           </label>
           <textarea
@@ -509,7 +509,7 @@ export default function AddMedication() {
             onChange={e => setFormData(p => ({ ...p, notes: e.target.value }))}
             style={{
               width: "100%", padding: "0.75rem", borderRadius: "10px",
-              border: "1.5px solid #e2e8f0", outline: "none",
+              border: "1.5px solid var(--border)", outline: "none",
               fontFamily: "inherit", resize: "vertical", fontSize: "0.95rem"
             }}
           />
@@ -524,7 +524,7 @@ export default function AddMedication() {
             type="button"
             onClick={() => navigate(-1)}
             style={{
-              padding: "0.75rem 1.5rem", borderRadius: "10px", border: "1px solid #e2e8f0",
+              padding: "0.75rem 1.5rem", borderRadius: "10px", border: "1px solid var(--border)",
               background: "white", color: "#475569", fontWeight: 600, cursor: "pointer"
             }}
           >

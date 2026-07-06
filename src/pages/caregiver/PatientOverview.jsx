@@ -80,11 +80,22 @@ export default function PatientOverview() {
                 lastDose = takenLogs[0];
               }
 
+              // Fetch medications
+              const medsSnap = await get(query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId)));
+              const medsList = [];
+              if (medsSnap.exists()) {
+                const medsObj = medsSnap.val();
+                for (const key in medsObj) {
+                  medsList.push({ id: key, ...medsObj[key] });
+                }
+              }
+
               patientList.push({
                 id: patientId,
                 ...pData,
                 adherenceRate: statsObj.rate,
-                lastDoseTaken: lastDose
+                lastDoseTaken: lastDose,
+                medications: medsList
               });
             }
           } catch (err) {
@@ -112,7 +123,7 @@ export default function PatientOverview() {
         </div>
         <WorkspaceSwitcher />
         <nav className="sidebar-nav">
-          <a onClick={() => navigate("/caregiver")} className="nav-item active">🏠 Overview</a>
+          <a onClick={() => navigate("/caregiver")} className="nav-item active">ðŸ  Overview</a>
         </nav>
         <button className="signout-btn" onClick={handleSignOut}>Sign Out</button>
       </aside>
@@ -128,13 +139,13 @@ export default function PatientOverview() {
 
         {loading ? (
           <div style={{ display: "flex", justifyContent: "center", padding: "3rem" }}>
-            <span style={{ fontSize: "1.2rem", color: "#6b7280" }}>Retrieving assigned patient list...</span>
+            <span style={{ fontSize: "1.2rem", color: "var(--text-muted)" }}>Retrieving assigned patient list...</span>
           </div>
         ) : patients.length === 0 ? (
           <div className="dash-card" style={{ textAlign: "center", padding: "3rem" }}>
-            <span style={{ fontSize: "3rem" }}>🤝</span>
+            <span style={{ fontSize: "3rem" }}>ðŸ¤</span>
             <h3 style={{ margin: "1rem 0 0.5rem 0" }}>No patients assigned yet</h3>
-            <p style={{ color: "#6b7280" }}>Ask your clinician to link patient profiles to your caregiver email.</p>
+            <p style={{ color: "var(--text-muted)" }}>Ask your clinician to link patient profiles to your caregiver email.</p>
           </div>
         ) : (
           <div className="coming-soon-grid">
@@ -142,7 +153,7 @@ export default function PatientOverview() {
               // Status compliance severity mappings
               const rate = p.adherenceRate;
               const statusText = rate === null ? "No Data" : (rate >= 80 ? "Good" : (rate >= 50 ? "Needs Attention" : "Critical"));
-              const statusColor = rate === null ? "#6b7280" : (rate >= 80 ? "#10b981" : (rate >= 50 ? "#f59e0b" : "#ef4444"));
+              const statusColor = rate === null ? "var(--text-muted)" : (rate >= 80 ? "#10b981" : (rate >= 50 ? "#f59e0b" : "#ef4444"));
               const statusBg = rate === null ? "#f3f4f6" : (rate >= 80 ? "#ecfdf5" : (rate >= 50 ? "#fffbeb" : "#fef2f2"));
 
               return (
@@ -165,18 +176,47 @@ export default function PatientOverview() {
                   <p><strong>DOB:</strong> {p.dateOfBirth}</p>
                   
                   <div style={{ margin: "1rem 0 0.5rem 0", padding: "0.75rem", background: "#f8f7ff", borderRadius: "10px" }}>
-                    <p style={{ fontSize: "0.85rem", color: "#6b7280" }}>7-Day Adherence Score</p>
+                    <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>7-Day Adherence Score</p>
                     <span style={{ fontSize: "1.75rem", fontWeight: 800, color: statusColor }}>
                       {rate !== null ? `${rate}%` : "—"}
                     </span>
                   </div>
 
-                  <div style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+                  <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                     <strong>Last Dose Taken:</strong><br />
                     {p.lastDoseTaken 
                       ? `${p.lastDoseTaken.medicationName} at ${p.lastDoseTaken.scheduledTime} (${p.lastDoseTaken.scheduledDate})`
                       : "No records found"
                     }
+                  </div>
+
+                  <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border)", paddingTop: "1rem" }}>
+                    <h4 style={{ fontSize: "1rem", color: "var(--text-primary)", marginBottom: "1rem" }}>Medications</h4>
+                    {p.medications && p.medications.length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        {p.medications.map((med, idx) => {
+                          const times = med.reminderTimes || med.times || [];
+                          return (
+                            <div key={med.id || idx} style={{ background: "var(--bg-page)", padding: "0.75rem", borderRadius: "8px", border: "1px solid var(--border)" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                <strong style={{ color: "var(--text-primary)" }}>{med.medicationName || med.name}</strong>
+                                <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>{med.dosage}</span>
+                              </div>
+                              <p style={{ margin: "0.25rem 0 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                                {med.frequency} &middot; {med.foodInstructions || "No food instructions"}
+                              </p>
+                              {times.length > 0 && (
+                                <p style={{ margin: "0.25rem 0 0", fontSize: "0.8rem", color: "#6366f1", fontWeight: 500 }}>
+                                  {times.join(", ")}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No active medications.</p>
+                    )}
                   </div>
                 </div>
               );

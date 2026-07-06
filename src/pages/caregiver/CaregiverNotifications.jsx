@@ -1,4 +1,4 @@
-// src/pages/caregiver/CaregiverNotifications.jsx
+﻿// src/pages/caregiver/CaregiverNotifications.jsx
 import NotificationsList from "../../components/NotificationsList";
 
 export default function CaregiverNotifications() {

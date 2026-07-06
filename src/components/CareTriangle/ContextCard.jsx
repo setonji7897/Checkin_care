@@ -1,4 +1,4 @@
-import { AlertCircle, Clock, Pill } from "lucide-react";
+﻿import { AlertCircle, Clock, Pill } from "lucide-react";
 
 export default function ContextCard({ card }) {
   if (!card || card.type !== "missedDose") return null;

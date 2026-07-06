@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { getGroqResponseStream } from '../services/groqService';
 import { Send, X, Bot, User, Loader2 } from 'lucide-react';
 
@@ -7,7 +7,7 @@ export default function SupportChat({ isOpen, onClose }) {
     {
       id: Date.now(),
       role: 'assistant',
-      content: "Hi! I'm your CheckIn Care support assistant 👋\n\nI can help you with medications, reminders, adherence tracking, and navigating the app. What can I help you with today?",
+      content: "Hi! I'm your CheckIn Care support assistant ðŸ‘‹\n\nI can help you with medications, reminders, adherence tracking, and navigating the app. What can I help you with today?",
       timestamp: new Date()
     }
   ]);
@@ -81,7 +81,7 @@ export default function SupportChat({ isOpen, onClose }) {
         );
       });
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error("âŒ Error:", err);
       setError(err.message);
       // Remove the loading message if it failed completely
       setMessages(prev => {
@@ -192,7 +192,7 @@ export default function SupportChat({ isOpen, onClose }) {
         flex: 1,
         overflowY: 'auto',
         padding: '16px',
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'var(--bg-card)',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
@@ -217,8 +217,8 @@ export default function SupportChat({ isOpen, onClose }) {
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
-                  backgroundColor: isUser ? '#dbeafe' : '#e2e8f0',
-                  color: isUser ? '#2563eb' : '#64748b',
+                  backgroundColor: isUser ? '#dbeafe' : 'var(--border)',
+                  color: isUser ? '#2563eb' : 'var(--text-muted)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -234,13 +234,13 @@ export default function SupportChat({ isOpen, onClose }) {
                   padding: '12px 16px',
                   borderRadius: isUser ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                  border: isUser ? 'none' : '1px solid #e2e8f0',
+                  border: isUser ? 'none' : '1px solid var(--border)',
                   fontSize: '0.95rem',
                   lineHeight: '1.5',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {msg.isLoading && !msg.content ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontStyle: 'italic' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                       <Loader2 size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
                       Thinking...
                     </div>
@@ -267,7 +267,7 @@ export default function SupportChat({ isOpen, onClose }) {
       <div style={{
         padding: '16px',
         backgroundColor: '#ffffff',
-        borderTop: '1px solid #e2e8f0'
+        borderTop: '1px solid var(--border)'
       }}>
         <form onSubmit={handleSendMessage} style={{
           display: 'flex',
@@ -285,14 +285,14 @@ export default function SupportChat({ isOpen, onClose }) {
               flex: 1,
               padding: '12px 16px',
               borderRadius: '24px',
-              border: '1px solid #cbd5e1',
-              backgroundColor: '#f8fafc',
+              border: '1px solid var(--border)',
+              backgroundColor: 'var(--bg-card)',
               fontSize: '0.95rem',
               outline: 'none',
               transition: 'border-color 0.2s',
             }}
             onFocus={(e) => e.target.style.borderColor = '#2563eb'}
-            onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+            onBlur={(e) => e.target.style.borderColor = 'var(--border)'}
           />
           <button
             type="submit"
@@ -301,7 +301,7 @@ export default function SupportChat({ isOpen, onClose }) {
               width: '44px',
               height: '44px',
               borderRadius: '50%',
-              backgroundColor: !inputValue.trim() || loading ? '#e2e8f0' : '#2563eb',
+              backgroundColor: !inputValue.trim() || loading ? 'var(--border)' : '#2563eb',
               color: !inputValue.trim() || loading ? '#94a3b8' : 'white',
               border: 'none',
               display: 'flex',

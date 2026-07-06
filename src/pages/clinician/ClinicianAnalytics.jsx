@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+﻿import { useState, useEffect, useMemo } from "react";
 import { BarChart3, AlertCircle, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react";
 import { getAllPatientsRiskRanked } from "../../services/patientInsightService";
 import { useAuth } from "../../contexts/AuthContext";
@@ -84,14 +84,14 @@ export default function ClinicianAnalytics() {
       case "high": return "#ef4444";
       case "medium": return "#f59e0b";
       case "low": return "#10b981";
-      default: return "#64748b";
+      default: return "var(--text-muted)";
     }
   };
 
   const getTrendIcon = (dir) => {
     if (dir === "improving") return <TrendingUp size={16} color="#10b981" />;
     if (dir === "declining") return <TrendingDown size={16} color="#ef4444" />;
-    return <Minus size={16} color="#64748b" />;
+    return <Minus size={16} color="var(--text-muted)" />;
   };
 
   if (loading) {
@@ -123,8 +123,8 @@ export default function ClinicianAnalytics() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={populationTrend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={5}/>
-                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
+                <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--text-muted)" }} dy={5}/>
+                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
                 <Line type="monotone" dataKey="adherence" stroke="#4f46e5" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
               </LineChart>
@@ -139,8 +139,8 @@ export default function ClinicianAnalytics() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={populationDow} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} dy={5}/>
-                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#64748b" }} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--text-muted)" }} dy={5}/>
+                <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "var(--text-muted)" }} />
                 <Tooltip cursor={{ fill: "rgba(79,70,229,0.05)" }} contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }} />
                 <Bar dataKey="adherence" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>

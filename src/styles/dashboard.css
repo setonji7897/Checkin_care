@@ -1908,3 +1908,37 @@
     gap: 0.5rem;
   }
 }
+
+.outline-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.outline-btn:hover {
+  background: var(--bg-page);
+  border-color: var(--text-muted);
+}
+
+.subtle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.subtle-btn:hover {
+  background: var(--bg-page);
+  color: var(--text-primary);
+}

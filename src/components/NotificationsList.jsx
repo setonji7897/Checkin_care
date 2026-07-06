@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ref, onValue, update } from "firebase/database";
 import { Bell, AlertCircle, MessageSquare, Pill, FilePenLine } from "lucide-react";
@@ -18,7 +18,7 @@ function iconFor(type) {
   if (type === "prescription_update") return <FilePenLine size={20} color="#10b981" />;
   if (type === "reminder" || type === "missed_dose") return <Pill size={20} color="#f59e0b" />;
   if (type === "caregiver_alert" || type === "missed_dose_alert") return <AlertCircle size={20} color="#ef4444" />;
-  return <Bell size={20} color="#64748b" />;
+  return <Bell size={20} color="var(--text-muted)" />;
 }
 
 function matchesFilter(notification, filter) {
@@ -101,7 +101,7 @@ export default function NotificationsList({ subtitle }) {
       <div className="dash-card" style={{ padding: 0, overflow: "hidden" }}>
         {visibleNotifications.length === 0 ? (
           <div style={{ padding: "3rem", textAlign: "center" }}>
-            <Bell size={48} color="#cbd5e1" style={{ marginBottom: "1rem" }} />
+            <Bell size={48} color="var(--border)" style={{ marginBottom: "1rem" }} />
             <h3 style={{ margin: 0, color: "var(--text-primary)" }}>You're all caught up</h3>
             <p style={{ color: "var(--text-muted)" }}>No notifications match this view.</p>
           </div>

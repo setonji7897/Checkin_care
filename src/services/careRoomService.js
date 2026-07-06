@@ -124,6 +124,40 @@ export async function sendMessage(patientId, senderId, senderRole, senderName, t
     lastMessagePreview: trimmedText || (options.contextCard ? "Shared an adherence update" : "")
   });
 
+  // Push notifications
+  try {
+    const snapshot = await get(roomRef);
+    if (snapshot.exists()) {
+      const room = snapshot.val();
+      const participants = [];
+      if (room.patientUid) participants.push(room.patientUid);
+      else if (room.patientId) participants.push(room.patientId);
+      
+      if (room.clinicianId) participants.push(room.clinicianId);
+      if (room.caregiverIds) {
+        Object.keys(room.caregiverIds).forEach(id => {
+          if (room.caregiverIds[id]) participants.push(id);
+        });
+      }
+
+      for (const uid of participants) {
+        if (uid !== senderId && uid !== "system") {
+           const notifRef = push(ref(db, "notifications/" + uid));
+           await set(notifRef, {
+             read: false,
+             timestamp: Date.now(),
+             type: "new_message",
+             title: "New Care Triangle Message",
+             body: `${senderName || "Someone"}: ${trimmedText || "Shared an update"}`,
+             actionRoute: "/care-triangle"
+           });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Failed to send push notifications for Care Triangle message", err);
+  }
+
   return newMessageRef.key;
 }
 
