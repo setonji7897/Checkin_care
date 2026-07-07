@@ -1,4 +1,4 @@
-﻿// src/pages/auth/LoginRegister.jsx
+// src/pages/auth/LoginRegister.jsx
 import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, set } from "firebase/database";
@@ -53,7 +53,6 @@ export default function LoginRegister() {
         });
 
         if (formData.role === "patient") await set(ref(db, "patients/" + user.uid), { linkedUid: user.uid });
-        else if (formData.role === "caregiver") await set(ref(db, "caregivers/" + user.uid), { linkedUid: user.uid });
         else if (formData.role === "clinician") await set(ref(db, "clinicians/" + user.uid), { linkedUid: user.uid });
 
         triggerSuccess();

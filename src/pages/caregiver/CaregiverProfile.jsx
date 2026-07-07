@@ -1,6 +1,6 @@
 // src/pages/caregiver/CaregiverProfile.jsx
 import { useState, useEffect } from "react";
-import { ref, get, update } from "firebase/database";
+import { ref, update } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { User, Mail, Phone, Save, ShieldAlert } from "lucide-react";
@@ -11,29 +11,16 @@ export default function CaregiverProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({ firstName: "", lastName: "", phone: "", relationship: "" });
-  const [caregiverId, setCaregiverId] = useState(null);
 
   useEffect(() => {
-    if (!currentUser) return;
-    setFormData(prev => ({ ...prev, firstName: userData?.firstName || "", lastName: userData?.lastName || "", phone: userData?.phone || "" }));
-    
-    const fetchCaregiverData = async () => {
-      try {
-        const { query, orderByChild, equalTo } = await import("firebase/database");
-        const q = query(ref(db, "caregivers"), orderByChild("linkedUid"), equalTo(currentUser.uid));
-        const snap = await get(q);
-        if (snap.exists()) {
-          const id = Object.keys(snap.val())[0];
-          setCaregiverId(id);
-          setFormData(prev => ({ ...prev, relationship: snap.val()[id].relationship || "" }));
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCaregiverData();
+    if (!currentUser || !userData) return;
+    setFormData({
+      firstName:    userData.firstName    || "",
+      lastName:     userData.lastName     || "",
+      phone:        userData.phone        || "",
+      relationship: userData.relationship || "",
+    });
+    setLoading(false);
   }, [currentUser, userData]);
 
   const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,11 +29,11 @@ export default function CaregiverProfile() {
     e.preventDefault();
     setSaving(true);
     try {
-      await update(ref(db, `users/${currentUser.uid}`), { firstName: formData.firstName, lastName: formData.lastName, phone: formData.phone });
-      const cId = caregiverId || currentUser.uid;
-      await update(ref(db, `caregivers/${cId}`), { 
-        linkedUid: currentUser.uid,
-        relationship: formData.relationship 
+      await update(ref(db, `users/${currentUser.uid}`), {
+        firstName:    formData.firstName,
+        lastName:     formData.lastName,
+        phone:        formData.phone,
+        relationship: formData.relationship,
       });
       alert("Profile updated successfully!");
     } catch (err) {
