@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ref, query, orderByChild, equalTo, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { Users, AlertTriangle, Activity, CalendarClock, Bell, CheckCircle2, AlertCircle, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { calculateAdherence, evaluatePatientAlerts, getPatientName, getMedicationTimes } from "../../utils/backendData";
+import { calculateAdherence, evaluatePatientAlerts, getPatientName } from "../../utils/backendData";
 import { redeemInviteCode } from "../../services/careInviteService";
 import "../../styles/dashboard.css";
 
@@ -24,10 +24,14 @@ export default function CaregiverDashboard() {
   const [skipped, setSkipped] = useState(false);
 
 
+  // Track live listener unsub functions so we can swap them when assignments change
+  const unsubLogsRef = useRef(null);
+  const unsubMedsRef = useRef(null);
+
   useEffect(() => {
     if (!currentUser) return;
 
-    // Query caregiverAssignments by caregiverId
+    // Phase 1: watch caregiverAssignments for this caregiver
     const assignQuery = query(
       ref(db, "caregiverAssignments"),
       orderByChild("caregiverId"),
@@ -37,15 +41,15 @@ export default function CaregiverDashboard() {
     const unsubAssign = onValue(assignQuery, async (snapshot) => {
       const patientIds = [];
       snapshot.forEach(child => {
-        patientIds.push(child.key); // child.key is the patientId
+        patientIds.push(child.key); // key IS the patientId
       });
 
+      // Build patient profile list
       const patientList = [];
       for (const pid of patientIds) {
         const pSnap = await get(ref(db, "patients/" + pid));
         if (!pSnap.exists()) continue;
         const patientData = { id: pid, ...pSnap.val() };
-        // Name lives in users/{linkedUid}, not in patients/{pid}
         const linkedUid = patientData.linkedUid || pid;
         const uSnap = await get(ref(db, "users/" + linkedUid));
         if (uSnap.exists()) {
@@ -55,35 +59,44 @@ export default function CaregiverDashboard() {
         }
         patientList.push(patientData);
       }
+      setPatients(patientList);
+      setLoading(false);
 
-      // Fetch logs and medications filtered by the known patient IDs.
-      // Done here — after patientIds are resolved — so all three datasets
-      // are populated atomically before stats are computed.
-      const allLogs = [];
-      const allMeds = [];
-      for (const pid of patientIds) {
-        const logsSnap = await get(
-          query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(pid))
-        );
-        if (logsSnap.exists()) {
-          logsSnap.forEach(child => allLogs.push({ id: child.key, ...child.val() }));
-        }
-        const medsSnap = await get(
-          query(ref(db, "medications"), orderByChild("patientId"), equalTo(pid))
-        );
-        if (medsSnap.exists()) {
-          medsSnap.forEach(child => allMeds.push({ id: child.key, ...child.val() }));
-        }
+      // Phase 2: tear down any previous live listeners, then start fresh ones.
+      // We listen to the FULL nodes and filter client-side — this avoids the
+      // need for a deployed server-side index and is proven to work.
+      if (unsubLogsRef.current) unsubLogsRef.current();
+      if (unsubMedsRef.current) unsubMedsRef.current();
+
+      if (patientIds.length === 0) {
+        setLogs([]);
+        setMedications([]);
+        return;
       }
 
-      setPatients(patientList);
-      setLogs(allLogs);
-      setMedications(allMeds);
-      setLoading(false);
+      unsubLogsRef.current = onValue(ref(db, "adherenceLogs"), (logsSnap) => {
+        const all = [];
+        logsSnap.forEach(child => {
+          const log = { id: child.key, ...child.val() };
+          if (patientIds.includes(log.patientId)) all.push(log);
+        });
+        setLogs(all);
+      });
+
+      unsubMedsRef.current = onValue(ref(db, "medications"), (medsSnap) => {
+        const all = [];
+        medsSnap.forEach(child => {
+          const med = { id: child.key, ...child.val() };
+          if (patientIds.includes(med.patientId)) all.push(med);
+        });
+        setMedications(all);
+      });
     });
 
     return () => {
       unsubAssign();
+      if (unsubLogsRef.current) unsubLogsRef.current();
+      if (unsubMedsRef.current) unsubMedsRef.current();
     };
   }, [currentUser]);
 
@@ -316,17 +329,17 @@ export default function CaregiverDashboard() {
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {patients.map(patient => {
                 const todayStr = new Date().toISOString().split("T")[0];
+                // ALL logs for this patient today (taken, missed, upcoming)
                 const pLogs = logs.filter(l => l.patientId === patient.id && l.scheduledDate === todayStr);
                 const eligibleLogs = pLogs.filter(l => l.status !== "upcoming");
                 const taken = eligibleLogs.filter(l => l.status === "taken").length;
+                const missed = eligibleLogs.filter(l => l.status === "missed").length;
                 const total = eligibleLogs.length;
 
-                // Pending/missed doses from logs
-                const loggedRemaining = pLogs.filter(l => l.status === "upcoming" || l.status === "missed");
-
-                // Also include scheduled-but-unlogged doses from medications
+                // Build a full schedule view: taken + missed + upcoming from logs,
+                // then add any medication slots that have no log at all
                 const patientMeds = medications.filter(m => m.patientId === patient.id);
-                const scheduledTimes = [];
+                const unloggedSlots = [];
                 patientMeds.forEach(med => {
                   const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
                     : Array.isArray(med.reminderTime) ? med.reminderTime
@@ -336,7 +349,7 @@ export default function CaregiverDashboard() {
                   times.filter(Boolean).forEach(t => {
                     const alreadyLogged = pLogs.some(l => l.medicationId === med.id && l.scheduledTime === t);
                     if (!alreadyLogged) {
-                      scheduledTimes.push({
+                      unloggedSlots.push({
                         scheduledTime: t,
                         medicationName: med.medicationName || med.name || "Medication",
                         status: "pending"
@@ -345,8 +358,18 @@ export default function CaregiverDashboard() {
                   });
                 });
 
-                const allRemaining = [...loggedRemaining, ...scheduledTimes]
-                  .sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+                // Full sorted schedule for today
+                const allToday = [
+                  ...pLogs.map(l => ({
+                    scheduledTime: l.scheduledTime || "",
+                    medicationName: l.medicationName || l.medicationId || "Medication",
+                    status: l.status
+                  })),
+                  ...unloggedSlots
+                ].sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+
+                const statusColor = { taken: "#10b981", missed: "#ef4444", upcoming: "#6366f1", pending: "#6366f1" };
+                const statusLabel = { taken: "Taken ✓", missed: "Missed", upcoming: "Upcoming", pending: "Upcoming" };
 
                 return (
                   <div key={patient.id} style={{ borderBottom: "1px solid var(--border)", paddingBottom: "1rem" }}>
@@ -354,25 +377,26 @@ export default function CaregiverDashboard() {
                       {getPatientName(patient)}'s medications today
                     </h4>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.9rem", color: "var(--text-muted)", fontWeight: 500 }}>
-                      {total === 0 ? "No doses logged yet today" : `${taken} of ${total} doses taken today`}
+                      {total === 0
+                        ? (unloggedSlots.length > 0 ? `${unloggedSlots.length} dose(s) scheduled` : "No doses scheduled today")
+                        : `${taken} taken · ${missed} missed · ${pLogs.filter(l=>l.status==="upcoming").length + unloggedSlots.length} upcoming`}
                     </p>
-                    {allRemaining.length > 0 && (
+                    {allToday.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {allRemaining.slice(0, 3).map((item, idx) => (
-                          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                            <Bell size={14} color="#6366f1" />
-                            <span>{item.scheduledTime} - {item.medicationName}</span>
-                            {item.status === "missed" && (
-                              <span style={{ color: "#ef4444", fontWeight: 600, marginLeft: "auto" }}>Missed</span>
-                            )}
-                            {item.status === "pending" && (
-                              <span style={{ color: "#6366f1", fontWeight: 500, marginLeft: "auto" }}>Upcoming</span>
-                            )}
+                        {allToday.slice(0, 5).map((item, idx) => (
+                          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)",
+                            background: item.status === "taken" ? "rgba(16,185,129,0.06)" : item.status === "missed" ? "rgba(239,68,68,0.06)" : "transparent",
+                            borderRadius: "8px", padding: "0.35rem 0.5rem" }}>
+                            <Bell size={13} color={statusColor[item.status] || "#6366f1"} />
+                            <span style={{ flex: 1 }}>{item.scheduledTime || "–"} &nbsp;·&nbsp; {item.medicationName}</span>
+                            <span style={{ color: statusColor[item.status] || "#6366f1", fontWeight: 600, fontSize: "0.8rem" }}>
+                              {statusLabel[item.status] || item.status}
+                            </span>
                           </div>
                         ))}
-                        {allRemaining.length > 3 && (
+                        {allToday.length > 5 && (
                           <div style={{ fontSize: "0.8rem", color: "#6366f1", marginTop: "0.25rem" }}>
-                            + {allRemaining.length - 3} more
+                            + {allToday.length - 5} more doses
                           </div>
                         )}
                       </div>

@@ -135,12 +135,20 @@ export function evaluatePatientAlerts(patientId, logs = [], medications = []) {
 
   // 3. No logs in the last 24+ hours despite an active schedule
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  const todayDateStr = new Date().toISOString().split("T")[0];
+  const yesterdayDate = new Date(); yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayStr = yesterdayDate.toISOString().split("T")[0];
+
   const hasRecentLog = pastLogs.some(l => {
-    const dt = new Date(`${l.scheduledDate}T${l.scheduledTime || "00:00"}`).getTime();
-    return dt >= oneDayAgo;
+    // Prefer createdAt (epoch ms) — most reliable
+    if (l.createdAt && typeof l.createdAt === "number") {
+      return l.createdAt >= oneDayAgo;
+    }
+    // Fall back: any log scheduled today or yesterday counts as recent
+    return l.scheduledDate === todayDateStr || l.scheduledDate === yesterdayStr;
   });
   const hasActiveSchedule = medications.some(m => m.patientId === patientId);
-  
+
   if (!hasRecentLog && hasActiveSchedule) {
     alerts.push({ type: "no_activity", message: "No activity in 24+ hours" });
   }
