@@ -39,7 +39,17 @@ export default function CaregiverReports() {
       const list = [];
       for (const pid of ids) {
         const pSnap = await get(ref(db, "patients/" + pid));
-        if (pSnap.exists()) list.push({ id: pid, ...pSnap.val() });
+        if (pSnap.exists()) {
+          const patientData = { id: pid, ...pSnap.val() };
+          const linkedUid = patientData.linkedUid || pid;
+          const uSnap = await get(ref(db, "users/" + linkedUid));
+          if (uSnap.exists()) {
+            const u = uSnap.val();
+            patientData.firstName = u.firstName || "";
+            patientData.lastName = u.lastName || "";
+          }
+          list.push(patientData);
+        }
       }
       setPatients(list);
       if (list.length > 0 && !selectedPatientId) setSelectedPatientId(list[0].id);

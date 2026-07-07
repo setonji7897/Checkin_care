@@ -29,9 +29,17 @@ export default function CaregiverAlerts() {
       const patientList = [];
       for (const pid of patientIds) {
         const pSnap = await get(ref(db, "patients/" + pid));
-        if (pSnap.exists()) {
-          patientList.push({ id: pid, ...pSnap.val() });
+        if (!pSnap.exists()) continue;
+        const patientData = { id: pid, ...pSnap.val() };
+        // Name lives in users/{linkedUid}, not in patients/{pid}
+        const linkedUid = patientData.linkedUid || pid;
+        const uSnap = await get(ref(db, "users/" + linkedUid));
+        if (uSnap.exists()) {
+          const u = uSnap.val();
+          patientData.firstName = u.firstName || "";
+          patientData.lastName  = u.lastName  || "";
         }
+        patientList.push(patientData);
       }
       setPatients(patientList);
     });

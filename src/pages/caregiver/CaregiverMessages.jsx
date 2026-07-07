@@ -31,7 +31,18 @@ export default function CaregiverMessages() {
       for (const pid of patientIds) {
         // Fetch patient details
         const pSnap = await get(ref(db, "patients/" + pid));
-        const patient = pSnap.exists() ? { id: pid, ...pSnap.val() } : { id: pid, fullName: "Patient" };
+        let patient = { id: pid, fullName: "Patient" };
+        if (pSnap.exists()) {
+          const patientData = { id: pid, ...pSnap.val() };
+          const linkedUid = patientData.linkedUid || pid;
+          const uSnap = await get(ref(db, "users/" + linkedUid));
+          if (uSnap.exists()) {
+            const u = uSnap.val();
+            patientData.firstName = u.firstName || "";
+            patientData.lastName = u.lastName || "";
+          }
+          patient = patientData;
+        }
 
         // Fetch care room (if it exists)
         const roomSnap = await get(ref(db, "careRooms/" + pid));

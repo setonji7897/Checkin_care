@@ -18,9 +18,21 @@ export default function CaregiverPatientDetail() {
     if (!patientId) return;
 
     const patientRef = ref(db, "patients/" + patientId);
-    const unsubPatient = onValue(patientRef, (snapshot) => {
+    const unsubPatient = onValue(patientRef, async (snapshot) => {
       if (snapshot.exists()) {
-        setPatient({ id: patientId, ...snapshot.val() });
+        const patientData = { id: patientId, ...snapshot.val() };
+        const linkedUid = patientData.linkedUid || patientId;
+        
+        // Fetch user info from users/{linkedUid} for details like name, email, phone
+        const uSnap = await get(ref(db, "users/" + linkedUid));
+        if (uSnap.exists()) {
+          const u = uSnap.val();
+          patientData.firstName = u.firstName || "";
+          patientData.lastName = u.lastName || "";
+          patientData.email = u.email || "";
+          patientData.phone = u.phone || "";
+        }
+        setPatient(patientData);
       } else {
         setPatient(null);
       }

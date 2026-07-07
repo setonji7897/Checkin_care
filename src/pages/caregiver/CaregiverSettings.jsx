@@ -51,7 +51,15 @@ export default function CaregiverSettings() {
       for (const pid of patientIds) {
         const pSnap = await get(ref(db, "patients/" + pid));
         if (pSnap.exists()) {
-          list.push({ id: pid, ...pSnap.val() });
+          const patientData = { id: pid, ...pSnap.val() };
+          const linkedUid = patientData.linkedUid || pid;
+          const uSnap = await get(ref(db, "users/" + linkedUid));
+          if (uSnap.exists()) {
+            const u = uSnap.val();
+            patientData.firstName = u.firstName || "";
+            patientData.lastName = u.lastName || "";
+          }
+          list.push(patientData);
         }
       }
       setPatients(list);
