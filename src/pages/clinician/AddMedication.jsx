@@ -1,4 +1,4 @@
-﻿// src/pages/clinician/AddMedication.jsx
+// src/pages/clinician/AddMedication.jsx
 //
 // PURPOSE: Adds medications to patients (Prescribed by Clinician).
 
@@ -184,7 +184,7 @@ export default function AddMedication() {
               <input
                 id="med-dose"
                 type="text"
-                placeholder="75mg"
+                placeholder="e.g. 500mg"
                 value={dosage}
                 onChange={e => setDosage(e.target.value)}
               />
