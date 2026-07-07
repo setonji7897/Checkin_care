@@ -1,7 +1,7 @@
 // src/pages/patient/PatientSettings.jsx
 import { useState, useEffect } from "react";
 import { updatePassword } from "firebase/auth";
-import { ref, get, set, update, onValue } from "firebase/database";
+import { ref, get, set, update, onValue, query, orderByChild, equalTo } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -76,6 +76,7 @@ export default function PatientSettings() {
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   // Care Team States
+  const [resolvedPatientId, setResolvedPatientId] = useState(currentUser?.uid || null);
   const [caregiver, setCaregiver] = useState(null);
   const [activeInvite, setActiveInvite] = useState(null);
   const [countdown, setCountdown] = useState("");
@@ -121,53 +122,76 @@ export default function PatientSettings() {
   useEffect(() => {
     if (!currentUser) return;
 
-    // Listen to patient record for caregiverId updates
-    const patientRef = ref(db, `patients/${currentUser.uid}`);
-    const unsubPatient = onValue(patientRef, async (snapshot) => {
-      if (snapshot.exists()) {
-        const patientData = snapshot.val();
-        if (patientData.caregiverId) {
-          const cgSnap = await get(ref(db, `users/${patientData.caregiverId}`));
-          if (cgSnap.exists()) {
-            const cgVal = cgSnap.val();
-            setCaregiver({
-              uid: patientData.caregiverId,
-              name: [cgVal.firstName, cgVal.lastName].filter(Boolean).join(" ") || cgVal.name || "Caregiver",
-              email: cgVal.email || "",
-              phone: cgVal.phone || ""
-            });
-          } else {
-            setCaregiver({ uid: patientData.caregiverId, name: "Assigned Caregiver" });
-          }
-        } else {
-          setCaregiver(null);
-        }
-      } else {
-        setCaregiver(null);
-      }
-    });
+    let unsubPatient = null;
+    let unsubInvites = null;
+    let active = true;
 
-    // Listen to active invites
-    const invitesRef = ref(db, "careInvites");
-    const unsubInvites = onValue(invitesRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const now = Date.now();
-        let found = null;
-        snapshot.forEach((child) => {
-          const val = child.val();
-          if (val.patientId === currentUser.uid && !val.used && !val.revoked && val.expiresAt > now) {
-            found = val;
+    async function initSync() {
+      try {
+        const pQuery = query(ref(db, "patients"), orderByChild("linkedUid"), equalTo(currentUser.uid));
+        const pSnap = await get(pQuery);
+        let patientId = currentUser.uid;
+        if (pSnap.exists()) {
+          patientId = Object.keys(pSnap.val())[0];
+        }
+
+        if (!active) return;
+        setResolvedPatientId(patientId);
+
+        // 1. Listen to patient record for caregiverId updates
+        const patientRef = ref(db, `patients/${patientId}`);
+        unsubPatient = onValue(patientRef, async (snapshot) => {
+          if (snapshot.exists()) {
+            const patientData = snapshot.val();
+            if (patientData.caregiverId) {
+              const cgSnap = await get(ref(db, `users/${patientData.caregiverId}`));
+              if (cgSnap.exists()) {
+                const cgVal = cgSnap.val();
+                setCaregiver({
+                  uid: patientData.caregiverId,
+                  name: [cgVal.firstName, cgVal.lastName].filter(Boolean).join(" ") || cgVal.name || "Caregiver",
+                  email: cgVal.email || "",
+                  phone: cgVal.phone || ""
+                });
+              } else {
+                setCaregiver({ uid: patientData.caregiverId, name: "Assigned Caregiver" });
+              }
+            } else {
+              setCaregiver(null);
+            }
+          } else {
+            setCaregiver(null);
           }
         });
-        setActiveInvite(found);
-      } else {
-        setActiveInvite(null);
+
+        // 2. Listen to active invites
+        const invitesRef = ref(db, "careInvites");
+        unsubInvites = onValue(invitesRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const now = Date.now();
+            let found = null;
+            snapshot.forEach((child) => {
+              const val = child.val();
+              if (val.patientId === patientId && !val.used && !val.revoked && val.expiresAt > now) {
+                found = val;
+              }
+            });
+            setActiveInvite(found);
+          } else {
+            setActiveInvite(null);
+          }
+        });
+      } catch (err) {
+        console.error("Error initializing caregiver sync:", err);
       }
-    });
+    }
+
+    initSync();
 
     return () => {
-      unsubPatient();
-      unsubInvites();
+      active = false;
+      if (unsubPatient) unsubPatient();
+      if (unsubInvites) unsubInvites();
     };
   }, [currentUser]);
 
@@ -285,7 +309,7 @@ export default function PatientSettings() {
   const handleGenerateInvite = async () => {
     try {
       const patientName = [userData?.firstName, userData?.lastName].filter(Boolean).join(" ") || "Patient";
-      await generateInviteCode(currentUser.uid, patientName);
+      await generateInviteCode(resolvedPatientId || currentUser.uid, patientName);
     } catch (err) {
       console.error("Failed to generate invite code", err);
     }
@@ -293,13 +317,13 @@ export default function PatientSettings() {
 
   const handleRevokeInvite = async () => {
     if (activeInvite) {
-      await revokeInvite(activeInvite.code, currentUser.uid);
+      await revokeInvite(activeInvite.code, resolvedPatientId || currentUser.uid);
     }
   };
 
   const handleUnlinkCaregiver = async () => {
     if (caregiver && window.confirm(`Are you sure you want to remove ${caregiver.name} as your caregiver?`)) {
-      await unlinkCaregiver(currentUser.uid, caregiver.uid);
+      await unlinkCaregiver(resolvedPatientId || currentUser.uid, caregiver.uid);
     }
   };
 

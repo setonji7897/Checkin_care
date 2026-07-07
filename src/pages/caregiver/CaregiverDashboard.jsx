@@ -373,16 +373,7 @@ export default function CaregiverDashboard() {
         </div>
       </div>
 
-      <div style={{ marginTop: "3rem", borderTop: "2px dashed #ff3e3e", paddingTop: "1.5rem" }}>
-        <h4 style={{ color: "#ff3e3e", margin: "0 0 0.5rem" }}>⚠️ Backend Connection Debug Info</h4>
-        <pre style={{ background: "#1e1e2e", color: "#f8f8f2", padding: "1rem", borderRadius: "10px", overflow: "auto", maxHeight: "250px", fontSize: "0.75rem", fontFamily: "monospace" }}>
-          {JSON.stringify({
-            assignedPatients: patients.map(p => ({ id: p.id, linkedUid: p.linkedUid, name: getPatientName(p) })),
-            todayDate: new Date().toISOString().split("T")[0],
-            adherenceLogs: logs.slice(-10).map(l => ({ id: l.id, patientId: l.patientId, date: l.scheduledDate, status: l.status, med: l.medicationName || l.medicationId }))
-          }, null, 2)}
-        </pre>
-      </div>
+
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
