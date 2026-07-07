@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileText, Printer, Calendar, User } from "lucide-react";
-import { ref, onValue, get } from "firebase/database";
+import { ref, query, orderByChild, equalTo, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { calculateAdherence, getPatientName } from "../../utils/backendData";
