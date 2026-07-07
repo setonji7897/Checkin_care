@@ -269,7 +269,7 @@ export default function CaregiverDashboard() {
         </div>
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+      <div className="stats-grid" style={{ marginBottom: "2rem" }}>
         <div className="dash-card" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <Users size={32} color="#6366f1" style={{ marginBottom: "0.5rem" }} />
           <h3 style={{ margin: "0 0 0.25rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>Assigned Patients</h3>

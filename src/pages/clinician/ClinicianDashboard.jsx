@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Users, Activity, AlertTriangle, Pill } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ref, query, orderByChild, equalTo, onValue } from "firebase/database";
@@ -68,7 +68,7 @@ export default function ClinicianDashboard() {
           <p className="dash-sub">Practice overview and high-risk alerts</p>
         </div>
       </header>
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div className="stats-grid" style={{ marginBottom: '2rem' }}>
         <div className="dash-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Users size={32} color="#2563eb" style={{ marginBottom: '0.5rem' }} />
           <h3 style={{ margin: '0 0 0.25rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Total Patients</h3>

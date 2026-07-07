@@ -1,4 +1,4 @@
-﻿// src/pages/patient/PatientDashboard.jsx
+// src/pages/patient/PatientDashboard.jsx
 //
 // Premium patient dashboard with:
 //  â€¢ Top stat cards (adherence rate, today's doses, streak, missed this week)
@@ -370,7 +370,7 @@ export default function PatientDashboard() {
       </header>
 
       {/* â•â•â• TOP STAT CARDS â•â•â• */}
-      <div className="dashboard-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", marginBottom: "1.5rem" }}>
+      <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="dash-card wave-3-card" style={{ animationDelay: "200ms" }}>
           <div style={{ padding: "0.75rem", background: "#eff6ff", borderRadius: 12, width: "max-content", marginBottom: "1rem", color: "#2563eb" }}><TrendingUp size={24} /></div>
           <p style={{ margin: "0 0 0.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>Adherence rate</p>
