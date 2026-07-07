@@ -23,10 +23,11 @@ export default function CaregiverDashboard() {
   const [successPatient, setSuccessPatient] = useState("");
   const [skipped, setSkipped] = useState(false);
 
+
   useEffect(() => {
     if (!currentUser) return;
 
-    // Correct query: caregiverAssignments by caregiverId
+    // Query caregiverAssignments by caregiverId
     const assignQuery = query(
       ref(db, "caregiverAssignments"),
       orderByChild("caregiverId"),
@@ -54,26 +55,35 @@ export default function CaregiverDashboard() {
         }
         patientList.push(patientData);
       }
+
+      // Fetch logs and medications filtered by the known patient IDs.
+      // Done here — after patientIds are resolved — so all three datasets
+      // are populated atomically before stats are computed.
+      const allLogs = [];
+      const allMeds = [];
+      for (const pid of patientIds) {
+        const logsSnap = await get(
+          query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(pid))
+        );
+        if (logsSnap.exists()) {
+          logsSnap.forEach(child => allLogs.push({ id: child.key, ...child.val() }));
+        }
+        const medsSnap = await get(
+          query(ref(db, "medications"), orderByChild("patientId"), equalTo(pid))
+        );
+        if (medsSnap.exists()) {
+          medsSnap.forEach(child => allMeds.push({ id: child.key, ...child.val() }));
+        }
+      }
+
       setPatients(patientList);
+      setLogs(allLogs);
+      setMedications(allMeds);
       setLoading(false);
-    });
-
-    const unsubLogs = onValue(ref(db, "adherenceLogs"), (snapshot) => {
-      const list = [];
-      snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setLogs(list);
-    });
-
-    const unsubMeds = onValue(ref(db, "medications"), (snapshot) => {
-      const list = [];
-      snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setMedications(list);
     });
 
     return () => {
       unsubAssign();
-      unsubLogs();
-      unsubMeds();
     };
   }, [currentUser]);
 
@@ -84,6 +94,7 @@ export default function CaregiverDashboard() {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     weekAgo.setHours(0, 0, 0, 0);
+
 
     let missedToday = 0;
     const weekLogs = [];
