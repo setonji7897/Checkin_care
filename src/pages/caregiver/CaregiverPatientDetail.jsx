@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { ArrowLeft, User, Phone, Mail, FileText, AlertCircle, Clock, ShieldAlert } from "lucide-react";
 import { calculatePatientRisk, getPatientName } from "../../utils/backendData";

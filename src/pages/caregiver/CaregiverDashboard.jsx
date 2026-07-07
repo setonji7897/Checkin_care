@@ -83,6 +83,7 @@ export default function CaregiverDashboard() {
     const todayStr = new Date().toISOString().split("T")[0];
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(0, 0, 0, 0);
 
     let missedToday = 0;
     const weekLogs = [];
@@ -91,10 +92,19 @@ export default function CaregiverDashboard() {
       if (log.scheduledDate === todayStr && log.status === "missed") {
         missedToday++;
       }
-      const logDate = new Date(log.scheduledDate);
+      const logDate = new Date(log.scheduledDate + "T00:00:00");
       if (logDate >= weekAgo) {
         weekLogs.push(log);
       }
+    });
+
+    // Debug logging for caregiver stats & matches
+    console.log("📊 CaregiverDashboard Stats Audit:", {
+      assignedPatientIds: patientIds,
+      allLogsCount: logs.length,
+      matchedPatientLogs: patientLogs.map(l => ({ patientId: l.patientId, date: l.scheduledDate, status: l.status, name: l.medicationName })),
+      todayStr,
+      weekAgoStr: weekAgo.toISOString()
     });
 
     const ad = calculateAdherence(weekLogs);
@@ -104,7 +114,7 @@ export default function CaregiverDashboard() {
     patients.forEach(patient => {
       const alerts = evaluatePatientAlerts(patient.id, logs, medications);
       if (alerts.length > 0) {
-        const patientWeeklyLogs = logs.filter(log => log.patientId === patient.id && new Date(log.scheduledDate) >= weekAgo);
+        const patientWeeklyLogs = logs.filter(log => log.patientId === patient.id && new Date(log.scheduledDate + "T00:00:00") >= weekAgo);
         const patientAd = calculateAdherence(patientWeeklyLogs);
         patientsWithAlerts.push({ patient, alerts, adherence: patientAd.rate });
       }

@@ -79,10 +79,11 @@ export function calculateBestStreak(logs = []) {
 export function calculatePatientRisk(patientId, logs = []) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
+  cutoff.setHours(0, 0, 0, 0);
   const recentLogs = logs.filter(log =>
     log.patientId === patientId &&
     log.status !== "upcoming" &&
-    new Date(log.scheduledDate) >= cutoff
+    new Date(log.scheduledDate + "T00:00:00") >= cutoff
   );
   const { rate } = calculateAdherence(recentLogs);
   if (rate < 60) return { label: "High Risk", color: "#ef4444", rate };
@@ -108,7 +109,8 @@ export function evaluatePatientAlerts(patientId, logs = [], medications = []) {
   // 1. Weekly adherence < 50%
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
-  const weeklyLogs = patientLogs.filter(log => log.status !== "upcoming" && new Date(log.scheduledDate) >= cutoff);
+  cutoff.setHours(0, 0, 0, 0);
+  const weeklyLogs = patientLogs.filter(log => log.status !== "upcoming" && new Date(log.scheduledDate + "T00:00:00") >= cutoff);
   if (weeklyLogs.length > 0) {
     const taken = weeklyLogs.filter(log => log.status === "taken").length;
     const rate = Math.round((taken / weeklyLogs.length) * 100);
