@@ -190,6 +190,7 @@ export default function CaregiverPatientDetail() {
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {medications.map((med) => {
                 const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
+                  : Array.isArray(med.reminderTime) ? med.reminderTime
                   : med.reminderTime ? [med.reminderTime]
                   : med.times ? (Array.isArray(med.times) ? med.times : [med.times])
                   : [];

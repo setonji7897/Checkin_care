@@ -318,6 +318,7 @@ export default function CaregiverDashboard() {
                 const scheduledTimes = [];
                 patientMeds.forEach(med => {
                   const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
+                    : Array.isArray(med.reminderTime) ? med.reminderTime
                     : med.reminderTime ? [med.reminderTime]
                     : med.times ? (Array.isArray(med.times) ? med.times : [med.times])
                     : [];
