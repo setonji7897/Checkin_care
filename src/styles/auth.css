@@ -32,15 +32,16 @@
     flex-direction: column;
     min-height: 100dvh;
     background: #0f172a;
+    overflow-y: auto;
   }
   .auth-left {
     position: relative;
     flex: none;
     width: 100%;
-    min-height: 260px;
+    min-height: auto;
     height: auto;
     z-index: 0;
-    padding: 1.5rem 1rem 1rem;
+    padding: 2rem 1.25rem 1.25rem;
     justify-content: flex-start;
   }
   .auth-right {
@@ -49,7 +50,7 @@
     background: transparent;
     z-index: 10;
     margin-top: 0;
-    padding: 0 1rem 1.5rem;
+    padding: 0 1rem 2rem;
     align-items: flex-start;
   }
 }
@@ -194,29 +195,24 @@
   }
 
   .auth-brand-content img {
-    width: 72px !important;
-    height: 72px !important;
-    margin-bottom: 0.75rem !important;
+    width: 52px !important;
+    height: 52px !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .auth-brand-content h1 {
-    font-size: 1.65rem !important;
+    font-size: 1.45rem !important;
+    margin-bottom: 0.25rem;
   }
 
   .auth-brand-content p {
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.5rem;
   }
 
+  /* Hide feature bullets on very small screens to save space */
   .auth-features {
-    gap: 0.65rem;
-    margin-top: 1rem !important;
-  }
-
-  .feature-item {
-    font-size: 0.88rem !important;
-    gap: 0.5rem !important;
-    margin-bottom: 0.4rem !important;
+    display: none;
   }
 
   .auth-card > div:first-child {
