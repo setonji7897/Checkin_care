@@ -1,4 +1,4 @@
-﻿// src/pages/clinician/PatientDetail.jsx
+// src/pages/clinician/PatientDetail.jsx
 //
 // PURPOSE: Complete detail view of a single patient for clinicians. Includes profile,
 // medications prescibed vs self-prescribed, real-time adherence rate calculations,
@@ -239,7 +239,7 @@ export default function PatientDetail() {
                 <div key={med.id} className="dash-card placeholder-card">
                   <h3>{med.medicationName}</h3>
                   <p><strong>Dosage:</strong> {med.dosage}</p>
-                  <p><strong>Frequency:</strong> {med.frequency}</p>
+                  <p><strong>Frequency:</strong> {typeof med.frequency === "object" ? med.frequency.label : med.frequency}</p>
                   <p>
                     <strong>Schedule:</strong>{" "}
                     {Array.isArray(med.reminderTime)

@@ -204,7 +204,7 @@ export default function CaregiverPatientDetail() {
                       </div>
                       {med.frequency && (
                         <span style={{ fontSize: "0.75rem", background: "var(--border)", color: "var(--text-primary)", padding: "0.25rem 0.5rem", borderRadius: "20px", fontWeight: 600 }}>
-                          {med.frequency}
+                          {typeof med.frequency === "object" ? med.frequency.label : med.frequency}
                         </span>
                       )}
                     </div>

@@ -98,14 +98,7 @@ export default function CaregiverDashboard() {
       }
     });
 
-    // Debug logging for caregiver stats & matches
-    console.log("📊 CaregiverDashboard Stats Audit:", {
-      assignedPatientIds: patientIds,
-      allLogsCount: logs.length,
-      matchedPatientLogs: patientLogs.map(l => ({ patientId: l.patientId, date: l.scheduledDate, status: l.status, name: l.medicationName })),
-      todayStr,
-      weekAgoStr: weekAgo.toISOString()
-    });
+
 
     const ad = calculateAdherence(weekLogs);
     const weeklyAdherence = ad.rate;
