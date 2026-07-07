@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileText, Printer, Calendar, User } from "lucide-react";
-import { ref, query, orderByChild, equalTo, onValue, get } from "firebase/database";
+import { ref, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { calculateAdherence, getPatientName } from "../../utils/backendData";
@@ -57,14 +57,18 @@ export default function CaregiverReports() {
     return () => unsub();
   }, [currentUser]);
 
-  // Load all adherence logs for the selected patient
+  // Load all adherence logs and filter client-side for the selected patient.
+  // Using a full-node onValue (no server-side query) avoids the need for a
+  // deployed Firebase index and is proven to work in this project.
   useEffect(() => {
     if (!selectedPatientId) return;
     setLoadingLogs(true);
-    const logsQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(selectedPatientId));
-    const unsub = onValue(logsQuery, (snapshot) => {
+    const unsub = onValue(ref(db, "adherenceLogs"), (snapshot) => {
       const list = [];
-      snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
+      snapshot.forEach(child => {
+        const log = { id: child.key, ...child.val() };
+        if (log.patientId === selectedPatientId) list.push(log);
+      });
       setLogs(list);
       setLoadingLogs(false);
     });

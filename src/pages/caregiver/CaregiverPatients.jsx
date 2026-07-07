@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Users, Bell, MessageSquare, ChevronRight } from "lucide-react";
 import { ref, query, orderByChild, equalTo, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
@@ -13,10 +13,11 @@ export default function CaregiverPatients() {
   const [patients, setPatients] = useState([]);
   const [logs, setLogs] = useState([]);
 
+  const unsubLogsRef = useRef(null);
+
   useEffect(() => {
     if (!currentUser) return;
 
-    // Query caregiverAssignments by caregiverId to get assigned patientIds
     const assignQuery = query(
       ref(db, "caregiverAssignments"),
       orderByChild("caregiverId"),
@@ -29,13 +30,11 @@ export default function CaregiverPatients() {
         patientIds.push(child.key); // child.key is the patientId
       });
 
-      // Fetch each patient record + user profile for name resolution
       const patientList = [];
       for (const pid of patientIds) {
         const pSnap = await get(ref(db, "patients/" + pid));
         if (!pSnap.exists()) continue;
         const patientData = { id: pid, ...pSnap.val() };
-        // Name lives in users/{linkedUid}, not in patients/{pid}
         const linkedUid = patientData.linkedUid || pid;
         const uSnap = await get(ref(db, "users/" + linkedUid));
         if (uSnap.exists()) {
@@ -46,17 +45,28 @@ export default function CaregiverPatients() {
         patientList.push(patientData);
       }
       setPatients(patientList);
-    });
 
-    const unsubLogs = onValue(ref(db, "adherenceLogs"), (snapshot) => {
-      const list = [];
-      snapshot.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setLogs(list);
+      // Tear down previous logs listener, start a fresh one filtered client-side
+      if (unsubLogsRef.current) unsubLogsRef.current();
+
+      if (patientIds.length === 0) {
+        setLogs([]);
+        return;
+      }
+
+      unsubLogsRef.current = onValue(ref(db, "adherenceLogs"), (snapshot) => {
+        const list = [];
+        snapshot.forEach(child => {
+          const log = { id: child.key, ...child.val() };
+          if (patientIds.includes(log.patientId)) list.push(log);
+        });
+        setLogs(list);
+      });
     });
 
     return () => {
       unsubAssign();
-      unsubLogs();
+      if (unsubLogsRef.current) unsubLogsRef.current();
     };
   }, [currentUser]);
 
