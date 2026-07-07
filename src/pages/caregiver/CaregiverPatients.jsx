@@ -82,14 +82,24 @@ export default function CaregiverPatients() {
     return { patient, risk, todayText };
   }), [patients, logs]);
 
+  const [sentReminders, setSentReminders] = useState({});
+
   const sendReminder = async (patient) => {
     const uid = getPatientUid(patient, patient.id);
-    await writeUserNotification(uid, {
-      type: "reminder",
-      title: "Caregiver reminder",
-      body: "Please check your medication schedule.",
-      actionRoute: "/patient/schedule"
-    });
+    try {
+      await writeUserNotification(uid, {
+        type: "reminder",
+        title: "Caregiver reminder",
+        body: "Please check your medication schedule.",
+        actionRoute: "/patient/schedule"
+      });
+      setSentReminders(prev => ({ ...prev, [patient.id]: true }));
+      setTimeout(() => {
+        setSentReminders(prev => ({ ...prev, [patient.id]: false }));
+      }, 2500);
+    } catch (err) {
+      console.error("Error sending reminder:", err);
+    }
   };
 
   const startMessage = async (patient) => {
@@ -147,10 +157,22 @@ export default function CaregiverPatients() {
                 >
                   <button
                     onClick={() => sendReminder(patient)}
+                    disabled={sentReminders[patient.id]}
                     className="primary-btn"
-                    style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1rem", whiteSpace: "nowrap", fontSize: "0.875rem" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1rem",
+                      whiteSpace: "nowrap",
+                      fontSize: "0.875rem",
+                      background: sentReminders[patient.id] ? "#10b981" : undefined,
+                      borderColor: sentReminders[patient.id] ? "#10b981" : undefined,
+                      cursor: sentReminders[patient.id] ? "default" : "pointer",
+                      transition: "all 0.2s ease"
+                    }}
                   >
-                    <Bell size={16} /> Send Reminder
+                    <Bell size={16} /> {sentReminders[patient.id] ? "Sent ✓" : "Send Reminder"}
                   </button>
                   <button
                     onClick={() => startMessage(patient)}
