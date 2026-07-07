@@ -4,7 +4,7 @@
 // medications prescribed vs self-prescribed, real-time adherence rate calculations,
 // assignments configuration controls, and history logs.
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ref, onValue, get, query, orderByChild, equalTo, set, update } from "firebase/database";
 import { db } from "../../firebase/config";
@@ -30,11 +30,24 @@ export default function PatientDetail() {
   const { patientId } = useParams();
   const navigate = useNavigate();
 
-  const [patient, setPatient]           = useState(null);
-  const [medications, setMedications]   = useState([]);
+  const [patient, setPatient]             = useState(null);
+  // Two medication slices merged below — clinician query by record key,
+  // patient self-prescribed query by linkedUid (fallback UID).
+  const [medsFromKey, setMedsFromKey]     = useState([]);
+  const [medsFromUid, setMedsFromUid]     = useState([]);
   const [adherenceStats, setAdherenceStats] = useState({ rate: null, taken: 0, missed: 0, skipped: 0 });
-  const [logs, setLogs]                 = useState([]);
-  const [loading, setLoading]           = useState(true);
+  const [logs, setLogs]                   = useState([]);
+  const [loading, setLoading]             = useState(true);
+
+  // Merged, deduplicated medications list
+  const medications = useMemo(() => {
+    const seen = new Set();
+    return [...medsFromKey, ...medsFromUid].filter(m => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+  }, [medsFromKey, medsFromUid]);
 
   // ── Caregiver assignment ───────────────────────────────────────────────────
   const [caregiverEmail, setCaregiverEmail]   = useState("");
@@ -62,38 +75,38 @@ export default function PatientDetail() {
   useEffect(() => {
     if (!patientId) return;
 
+    // Patient profile
     const unsubscribePatient = onValue(ref(db, `patients/${patientId}`), snap => {
       if (snap.exists()) setPatient(snap.val());
     });
 
-    const medsQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId));
-    const unsubscribeMeds = onValue(medsQuery, snap => {
+    // Medications stored with the patient record KEY as patientId
+    // (clinician-prescribed meds always use this path)
+    const medsKeyQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId));
+    const unsubscribeMedsKey = onValue(medsKeyQuery, snap => {
       const list = [];
-      if (snap.exists()) {
-        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      }
-      setMedications(list);
+      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+      setMedsFromKey(list);
     });
 
+    // Adherence logs
     const logsQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientId));
     const unsubscribeLogs = onValue(logsQuery, snap => {
       const list = [];
-      if (snap.exists()) {
-        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      }
+      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
       list.sort((a, b) => {
         const dA = `${a.scheduledDate}T${a.scheduledTime}`;
         const dB = `${b.scheduledDate}T${b.scheduledTime}`;
         return dB.localeCompare(dA);
       });
       setLogs(list);
-
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const limitStr = sevenDaysAgo.toISOString().split("T")[0];
       setAdherenceStats(calculateAdherenceRate(list.filter(l => l.scheduledDate >= limitStr)));
     });
 
+    // Caregiver assignment
     const unsubscribeAssign = onValue(ref(db, `caregiverAssignments/${patientId}`), async snap => {
       if (snap.exists()) {
         const { caregiverId } = snap.val();
@@ -107,11 +120,31 @@ export default function PatientDetail() {
 
     return () => {
       unsubscribePatient();
-      unsubscribeMeds();
+      unsubscribeMedsKey();
       unsubscribeLogs();
       unsubscribeAssign();
     };
   }, [patientId]);
+
+  // ── Second medication subscription: by patient linkedUid ─────────────────
+  // Self-prescribed meds added via the patient app sometimes fall back to
+  // storing patientId = currentUser.uid (auth UID) instead of the record key.
+  // We catch those here and merge them into the combined medications list.
+  useEffect(() => {
+    const linkedUid = patient?.linkedUid;
+    // Skip if no linkedUid, or if it's the same as the record key (no double-fetch needed)
+    if (!linkedUid || linkedUid === patientId) {
+      setMedsFromUid([]);
+      return;
+    }
+    const medsUidQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(linkedUid));
+    const unsubscribeMedsUid = onValue(medsUidQuery, snap => {
+      const list = [];
+      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+      setMedsFromUid(list);
+    });
+    return () => unsubscribeMedsUid();
+  }, [patient?.linkedUid, patientId]);
 
   // ── Caregiver assignment — phase 1: lookup ────────────────────────────────
   async function handleAssignCaregiver(e) {
