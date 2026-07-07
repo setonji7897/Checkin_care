@@ -329,47 +329,47 @@ export default function CaregiverDashboard() {
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {patients.map(patient => {
                 const todayStr = new Date().toISOString().split("T")[0];
-                // ALL logs for this patient today (taken, missed, upcoming)
+                // adherenceLogs are the authoritative schedule for today
                 const pLogs = logs.filter(l => l.patientId === patient.id && l.scheduledDate === todayStr);
-                const eligibleLogs = pLogs.filter(l => l.status !== "upcoming");
-                const taken = eligibleLogs.filter(l => l.status === "taken").length;
-                const missed = eligibleLogs.filter(l => l.status === "missed").length;
-                const total = eligibleLogs.length;
+                const taken  = pLogs.filter(l => l.status === "taken").length;
+                const missed = pLogs.filter(l => l.status === "missed").length;
+                const upcoming = pLogs.filter(l => l.status === "upcoming").length;
 
-                // Build a full schedule view: taken + missed + upcoming from logs,
-                // then add any medication slots that have no log at all
-                const patientMeds = medications.filter(m => m.patientId === patient.id);
-                const unloggedSlots = [];
-                patientMeds.forEach(med => {
-                  const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
-                    : Array.isArray(med.reminderTime) ? med.reminderTime
-                    : med.reminderTime ? [med.reminderTime]
-                    : med.times ? (Array.isArray(med.times) ? med.times : [med.times])
-                    : [];
-                  times.filter(Boolean).forEach(t => {
-                    const alreadyLogged = pLogs.some(l => l.medicationId === med.id && l.scheduledTime === t);
-                    if (!alreadyLogged) {
-                      unloggedSlots.push({
-                        scheduledTime: t,
-                        medicationName: med.medicationName || med.name || "Medication",
-                        status: "pending"
-                      });
-                    }
-                  });
-                });
-
-                // Full sorted schedule for today
-                const allToday = [
-                  ...pLogs.map(l => ({
-                    scheduledTime: l.scheduledTime || "",
-                    medicationName: l.medicationName || l.medicationId || "Medication",
-                    status: l.status
-                  })),
-                  ...unloggedSlots
-                ].sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+                // If logs exist, use them exclusively (they ARE today's full schedule).
+                // Only fall back to the medications master list when no logs have been
+                // generated yet for this patient today.
+                let allToday;
+                if (pLogs.length > 0) {
+                  allToday = pLogs
+                    .map(l => ({
+                      scheduledTime: l.scheduledTime || "",
+                      medicationName: l.medicationName || l.medicationId || "Medication",
+                      status: l.status
+                    }))
+                    .sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+                } else {
+                  // Fallback: no logs generated yet — show medication schedule times
+                  const patientMeds = medications.filter(m => m.patientId === patient.id);
+                  allToday = patientMeds.flatMap(med => {
+                    const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
+                      : Array.isArray(med.reminderTime) ? med.reminderTime
+                      : med.reminderTime ? [med.reminderTime]
+                      : med.times ? (Array.isArray(med.times) ? med.times : [med.times])
+                      : [];
+                    return times.filter(Boolean).map(t => ({
+                      scheduledTime: t,
+                      medicationName: med.medicationName || med.name || "Medication",
+                      status: "pending"
+                    }));
+                  }).sort((a, b) => (a.scheduledTime || "").localeCompare(b.scheduledTime || ""));
+                }
 
                 const statusColor = { taken: "#10b981", missed: "#ef4444", upcoming: "#6366f1", pending: "#6366f1" };
-                const statusLabel = { taken: "Taken ✓", missed: "Missed", upcoming: "Upcoming", pending: "Upcoming" };
+                const statusLabel = { taken: "Taken ✓", missed: "Missed", upcoming: "Upcoming", pending: "Scheduled" };
+
+                const summaryText = pLogs.length === 0
+                  ? (allToday.length > 0 ? `${allToday.length} dose(s) scheduled` : "No doses scheduled today")
+                  : `${taken} taken · ${missed} missed${upcoming > 0 ? ` · ${upcoming} upcoming` : ""}`;
 
                 return (
                   <div key={patient.id} style={{ borderBottom: "1px solid var(--border)", paddingBottom: "1rem" }}>
@@ -377,9 +377,7 @@ export default function CaregiverDashboard() {
                       {getPatientName(patient)}'s medications today
                     </h4>
                     <p style={{ margin: "0 0 0.75rem", fontSize: "0.9rem", color: "var(--text-muted)", fontWeight: 500 }}>
-                      {total === 0
-                        ? (unloggedSlots.length > 0 ? `${unloggedSlots.length} dose(s) scheduled` : "No doses scheduled today")
-                        : `${taken} taken · ${missed} missed · ${pLogs.filter(l=>l.status==="upcoming").length + unloggedSlots.length} upcoming`}
+                      {summaryText}
                     </p>
                     {allToday.length > 0 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
