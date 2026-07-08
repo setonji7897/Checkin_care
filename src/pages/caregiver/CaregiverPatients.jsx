@@ -56,9 +56,12 @@ export default function CaregiverPatients() {
 
       unsubLogsRef.current = onValue(ref(db, "adherenceLogs"), (snapshot) => {
         const list = [];
+        const linkedUids = patientList.map(p => p.linkedUid).filter(Boolean);
         snapshot.forEach(child => {
           const log = { id: child.key, ...child.val() };
-          if (patientIds.includes(log.patientId)) list.push(log);
+          if (patientIds.includes(log.patientId) || linkedUids.includes(log.patientId)) {
+            list.push(log);
+          }
         });
         setLogs(list);
       });
@@ -71,9 +74,12 @@ export default function CaregiverPatients() {
   }, [currentUser]);
 
   const rows = useMemo(() => patients.map(patient => {
-    const risk = calculatePatientRisk(patient.id, logs);
+    const risk = calculatePatientRisk(patient.id, logs, patient.linkedUid);
     const todayStr = new Date().toISOString().split("T")[0];
-    const todayLogs = logs.filter(log => log.patientId === patient.id && log.scheduledDate === todayStr);
+    const todayLogs = logs.filter(log => 
+      (log.patientId === patient.id || (patient.linkedUid && log.patientId === patient.linkedUid)) && 
+      log.scheduledDate === todayStr
+    );
     const eligible = todayLogs.filter(l => l.status !== "upcoming");
     const taken = eligible.filter(log => log.status === "taken").length;
     const todayText = eligible.length

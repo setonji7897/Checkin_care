@@ -63,17 +63,21 @@ export default function CaregiverReports() {
   useEffect(() => {
     if (!selectedPatientId) return;
     setLoadingLogs(true);
+    const activePatient = patients.find(p => p.id === selectedPatientId);
+    const linkedUid = activePatient?.linkedUid;
     const unsub = onValue(ref(db, "adherenceLogs"), (snapshot) => {
       const list = [];
       snapshot.forEach(child => {
         const log = { id: child.key, ...child.val() };
-        if (log.patientId === selectedPatientId) list.push(log);
+        if (log.patientId === selectedPatientId || (linkedUid && log.patientId === linkedUid)) {
+          list.push(log);
+        }
       });
       setLogs(list);
       setLoadingLogs(false);
     });
     return () => unsub();
-  }, [selectedPatientId]);
+  }, [selectedPatientId, patients]);
 
   // Compute report data
   const report = useMemo(() => {

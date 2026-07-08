@@ -76,12 +76,12 @@ export function calculateBestStreak(logs = []) {
   return best;
 }
 
-export function calculatePatientRisk(patientId, logs = []) {
+export function calculatePatientRisk(patientId, logs = [], linkedUid = null) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
   cutoff.setHours(0, 0, 0, 0);
   const recentLogs = logs.filter(log =>
-    log.patientId === patientId &&
+    (log.patientId === patientId || (linkedUid && log.patientId === linkedUid)) &&
     log.status !== "upcoming" &&
     new Date(log.scheduledDate + "T00:00:00") >= cutoff
   );
@@ -102,9 +102,9 @@ export async function writeUserNotification(userId, payload) {
   return notifRef.key;
 }
 
-export function evaluatePatientAlerts(patientId, logs = [], medications = []) {
+export function evaluatePatientAlerts(patientId, logs = [], medications = [], linkedUid = null) {
   const alerts = [];
-  const patientLogs = logs.filter(l => l.patientId === patientId);
+  const patientLogs = logs.filter(l => l.patientId === patientId || (linkedUid && l.patientId === linkedUid));
   
   // 1. Weekly adherence < 50%
   const cutoff = new Date();
@@ -147,7 +147,7 @@ export function evaluatePatientAlerts(patientId, logs = [], medications = []) {
     // Fall back: any log scheduled today or yesterday counts as recent
     return l.scheduledDate === todayDateStr || l.scheduledDate === yesterdayStr;
   });
-  const hasActiveSchedule = medications.some(m => m.patientId === patientId);
+  const hasActiveSchedule = medications.some(m => m.patientId === patientId || (linkedUid && m.patientId === linkedUid));
 
   if (!hasRecentLog && hasActiveSchedule) {
     alerts.push({ type: "no_activity", message: "No activity in 24+ hours" });

@@ -148,12 +148,18 @@ function calculatePatientInsights(logs) {
 
 export async function getPatientRiskLevel(patientId) {
   if (!patientId) return null;
-  // Fetch adherence logs for patient
-  const logsSnap = await get(query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientId)));
+  const pSnap = await get(ref(db, "patients/" + patientId));
+  const patientData = pSnap.exists() ? pSnap.val() : null;
+  const linkedUid = patientData?.linkedUid;
+
+  const logsSnap = await get(ref(db, "adherenceLogs"));
   const logs = [];
   if (logsSnap.exists()) {
     logsSnap.forEach(child => {
-      logs.push(child.val());
+      const val = child.val();
+      if (val.patientId === patientId || (linkedUid && val.patientId === linkedUid)) {
+        logs.push(val);
+      }
     });
   }
   return calculatePatientInsights(logs);
@@ -184,7 +190,7 @@ export async function getAllPatientsRiskRanked(clinicianId) {
   }
 
   const results = patients.map(p => {
-    const pLogs = allLogs.filter(l => l.patientId === p.id);
+    const pLogs = allLogs.filter(l => l.patientId === p.id || (p.linkedUid && l.patientId === p.linkedUid));
     const insights = calculatePatientInsights(pLogs);
     return { ...p, insights };
   });

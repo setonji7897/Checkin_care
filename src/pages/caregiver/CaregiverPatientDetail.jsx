@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ref, onValue, get } from "firebase/database";
 import { db } from "../../firebase/config";
@@ -44,9 +44,7 @@ export default function CaregiverPatientDetail() {
       const list = [];
       snapshot.forEach((child) => {
         const val = child.val();
-        if (val.patientId === patientId) {
-          list.push({ id: child.key, ...val });
-        }
+        list.push({ id: child.key, ...val });
       });
       setMedications(list);
     });
@@ -56,9 +54,7 @@ export default function CaregiverPatientDetail() {
       const list = [];
       snapshot.forEach((child) => {
         const val = child.val();
-        if (val.patientId === patientId) {
-          list.push({ id: child.key, ...val });
-        }
+        list.push({ id: child.key, ...val });
       });
       setLogs(list);
     });
@@ -69,6 +65,14 @@ export default function CaregiverPatientDetail() {
       unsubLogs();
     };
   }, [patientId]);
+
+  const filteredMeds = useMemo(() => {
+    return medications.filter(med => med.patientId === patientId || (patient?.linkedUid && med.patientId === patient.linkedUid));
+  }, [medications, patientId, patient?.linkedUid]);
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter(log => log.patientId === patientId || (patient?.linkedUid && log.patientId === patient.linkedUid));
+  }, [logs, patientId, patient?.linkedUid]);
 
   if (loading) {
     return (
@@ -94,7 +98,7 @@ export default function CaregiverPatientDetail() {
     );
   }
 
-  const risk = calculatePatientRisk(patientId, logs);
+  const risk = calculatePatientRisk(patientId, filteredLogs, patient?.linkedUid);
 
   return (
     <>
@@ -184,11 +188,11 @@ export default function CaregiverPatientDetail() {
           <h3 style={{ margin: "0 0 1rem", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <FileText size={18} /> Prescribed Medications (Read-Only)
           </h3>
-          {medications.length === 0 ? (
+          {filteredMeds.length === 0 ? (
             <p style={{ color: "var(--text-muted)", margin: 0 }}>No prescribed medications found for this patient.</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {medications.map((med) => {
+              {filteredMeds.map((med) => {
                 const times = Array.isArray(med.reminderTimes) ? med.reminderTimes
                   : Array.isArray(med.reminderTime) ? med.reminderTime
                   : med.reminderTime ? [med.reminderTime]

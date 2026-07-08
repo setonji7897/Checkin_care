@@ -18,6 +18,7 @@ export default function PatientList() {
   const [patients, setPatients] = useState([]);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sentReminders, setSentReminders] = useState({});
 
   useEffect(() => {
     if (!currentUser) return;
@@ -57,9 +58,12 @@ export default function PatientList() {
   }, [currentUser]);
 
   const rows = useMemo(() => patients.map(patient => {
-    const risk = calculatePatientRisk(patient.id, logs);
+    const risk = calculatePatientRisk(patient.id, logs, patient.linkedUid);
     const todayStr = new Date().toISOString().split("T")[0];
-    const todayLogs = logs.filter(log => log.patientId === patient.id && log.scheduledDate === todayStr);
+    const todayLogs = logs.filter(log => 
+      (log.patientId === patient.id || (patient.linkedUid && log.patientId === patient.linkedUid)) && 
+      log.scheduledDate === todayStr
+    );
     const taken = todayLogs.filter(log => log.status === "taken").length;
     return { 
       patient, 
@@ -70,13 +74,20 @@ export default function PatientList() {
 
   const sendReminder = async (e, patient) => {
     e.stopPropagation(); // prevent card click
-    await writeUserNotification(getPatientUid(patient, patient.id), {
-      type: "reminder",
-      title: "Clinician reminder",
-      body: "Please check your medication schedule.",
-      actionRoute: "/patient/schedule"
-    });
-    // Visual feedback could be added here
+    try {
+      await writeUserNotification(getPatientUid(patient, patient.id), {
+        type: "reminder",
+        title: "Clinician reminder",
+        body: "Please check your medication schedule.",
+        actionRoute: "/patient/schedule"
+      });
+      setSentReminders(prev => ({ ...prev, [patient.id]: true }));
+      setTimeout(() => {
+        setSentReminders(prev => ({ ...prev, [patient.id]: false }));
+      }, 2500);
+    } catch (err) {
+      console.error("Error sending reminder:", err);
+    }
   };
 
   const startMessage = async (e, patient) => {
@@ -153,7 +164,23 @@ export default function PatientList() {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "flex-end", flex: "0 0 auto" }} className="patient-card-actions">
-                  <button onClick={(e) => sendReminder(e, patient)} className="primary-btn" style={{ padding: "0.55rem 1rem", whiteSpace: "nowrap", minWidth: "fit-content", fontSize: "0.875rem" }}><Bell size={16} /> Send Reminder</button>
+                  <button 
+                    onClick={(e) => sendReminder(e, patient)} 
+                    disabled={sentReminders[patient.id]}
+                    className="primary-btn" 
+                    style={{ 
+                      padding: "0.55rem 1rem", 
+                      whiteSpace: "nowrap", 
+                      minWidth: "fit-content", 
+                      fontSize: "0.875rem",
+                      background: sentReminders[patient.id] ? "#10b981" : undefined,
+                      borderColor: sentReminders[patient.id] ? "#10b981" : undefined,
+                      cursor: sentReminders[patient.id] ? "default" : "pointer",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    <Bell size={16} /> {sentReminders[patient.id] ? "Sent ✓" : "Send Reminder"}
+                  </button>
                   <button onClick={(e) => startMessage(e, patient)} className="outline-btn" style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.55rem 1rem", whiteSpace: "nowrap", minWidth: "fit-content" }}><MessageSquare size={16} /> Message</button>
                 </div>
               </div>

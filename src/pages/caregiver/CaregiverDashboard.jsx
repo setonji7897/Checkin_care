@@ -76,18 +76,24 @@ export default function CaregiverDashboard() {
 
       unsubLogsRef.current = onValue(ref(db, "adherenceLogs"), (logsSnap) => {
         const all = [];
+        const linkedUids = patientList.map(p => p.linkedUid).filter(Boolean);
         logsSnap.forEach(child => {
           const log = { id: child.key, ...child.val() };
-          if (patientIds.includes(log.patientId)) all.push(log);
+          if (patientIds.includes(log.patientId) || linkedUids.includes(log.patientId)) {
+            all.push(log);
+          }
         });
         setLogs(all);
       });
 
       unsubMedsRef.current = onValue(ref(db, "medications"), (medsSnap) => {
         const all = [];
+        const linkedUids = patientList.map(p => p.linkedUid).filter(Boolean);
         medsSnap.forEach(child => {
           const med = { id: child.key, ...child.val() };
-          if (patientIds.includes(med.patientId)) all.push(med);
+          if (patientIds.includes(med.patientId) || linkedUids.includes(med.patientId)) {
+            all.push(med);
+          }
         });
         setMedications(all);
       });
@@ -102,12 +108,12 @@ export default function CaregiverDashboard() {
 
   const stats = useMemo(() => {
     const patientIds = patients.map(p => p.id);
-    const patientLogs = logs.filter(log => patientIds.includes(log.patientId));
+    const linkedUids = patients.map(p => p.linkedUid).filter(Boolean);
+    const patientLogs = logs.filter(log => patientIds.includes(log.patientId) || linkedUids.includes(log.patientId));
     const todayStr = new Date().toISOString().split("T")[0];
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     weekAgo.setHours(0, 0, 0, 0);
-
 
     let missedToday = 0;
     const weekLogs = [];
@@ -122,16 +128,17 @@ export default function CaregiverDashboard() {
       }
     });
 
-
-
     const ad = calculateAdherence(weekLogs);
     const weeklyAdherence = ad.rate;
 
     const patientsWithAlerts = [];
     patients.forEach(patient => {
-      const alerts = evaluatePatientAlerts(patient.id, logs, medications);
+      const alerts = evaluatePatientAlerts(patient.id, logs, medications, patient.linkedUid);
       if (alerts.length > 0) {
-        const patientWeeklyLogs = logs.filter(log => log.patientId === patient.id && new Date(log.scheduledDate + "T00:00:00") >= weekAgo);
+        const patientWeeklyLogs = logs.filter(log => 
+          (log.patientId === patient.id || (patient.linkedUid && log.patientId === patient.linkedUid)) && 
+          new Date(log.scheduledDate + "T00:00:00") >= weekAgo
+        );
         const patientAd = calculateAdherence(patientWeeklyLogs);
         patientsWithAlerts.push({ patient, alerts, adherence: patientAd.rate });
       }
