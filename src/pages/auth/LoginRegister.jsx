@@ -53,7 +53,6 @@ export default function LoginRegister() {
         });
 
         if (formData.role === "patient") await set(ref(db, "patients/" + user.uid), { linkedUid: user.uid });
-        else if (formData.role === "clinician") await set(ref(db, "clinicians/" + user.uid), { linkedUid: user.uid });
 
         triggerSuccess();
       }

@@ -11,29 +11,16 @@ export default function ClinicianProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({ firstName: "", lastName: "", phone: "", title: "", hospital: "" });
-  const [clinicianId, setClinicianId] = useState(null);
-
   useEffect(() => {
-    if (!currentUser) return;
-    setFormData(prev => ({ ...prev, firstName: userData?.firstName || "", lastName: userData?.lastName || "", phone: userData?.phone || "" }));
-    
-    const fetchClinicianData = async () => {
-      try {
-        const { query, orderByChild, equalTo } = await import("firebase/database");
-        const q = query(ref(db, "clinicians"), orderByChild("linkedUid"), equalTo(currentUser.uid));
-        const snap = await get(q);
-        if (snap.exists()) {
-          const id = Object.keys(snap.val())[0];
-          setClinicianId(id);
-          setFormData(prev => ({ ...prev, title: snap.val()[id].title || "", hospital: snap.val()[id].hospital || "" }));
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchClinicianData();
+    if (!currentUser || !userData) return;
+    setFormData({
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
+      phone: userData.phone || "",
+      title: userData.title || "",
+      hospital: userData.hospital || "",
+    });
+    setLoading(false);
   }, [currentUser, userData]);
 
   const handleInputChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,12 +29,12 @@ export default function ClinicianProfile() {
     e.preventDefault();
     setSaving(true);
     try {
-      await update(ref(db, `users/${currentUser.uid}`), { firstName: formData.firstName, lastName: formData.lastName, phone: formData.phone });
-      const clinId = clinicianId || currentUser.uid;
-      await update(ref(db, `clinicians/${clinId}`), { 
-        linkedUid: currentUser.uid,
-        title: formData.title, 
-        hospital: formData.hospital 
+      await update(ref(db, `users/${currentUser.uid}`), { 
+        firstName: formData.firstName, 
+        lastName: formData.lastName, 
+        phone: formData.phone,
+        title: formData.title,
+        hospital: formData.hospital
       });
       alert("Profile updated successfully!");
     } catch (err) {
