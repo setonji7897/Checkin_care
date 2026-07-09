@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: "How does my caregiver see my information?",
-    a: "Your clinician links your account to a caregiver when they set up your profile. The caregiver can see your today's schedule, adherence score, and missed dose alerts â€” but they cannot change your prescriptions. Only your clinician can do that."
+    a: "Your clinician links your account to a caregiver when they set up your profile. The caregiver can see your today's schedule, adherence score, and missed dose alerts — but they cannot change your prescriptions. Only your clinician can do that."
   },
   {
     q: "How do I change my reminder time?",
@@ -38,7 +38,7 @@ const FAQS = [
   },
   {
     q: "Why aren't my notifications showing up?",
-    a: "First check Settings â†’ Notifications & Audio and make sure Push Notifications is turned on. Then check your device/browser notification permissions â€” the browser must have permission to show notifications from this site. On Chrome, click the lock icon in the address bar to check."
+    a: "First check Settings → Notifications & Audio and make sure Push Notifications is turned on. Then check your device/browser notification permissions — the browser must have permission to show notifications from this site. On Chrome, click the lock icon in the address bar to check."
   },
   {
     q: "What is my adherence score?",
@@ -332,7 +332,7 @@ export default function HelpSupport() {
           onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.1)"}
           onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
         >
-          ðŸ’¬
+          💬
         </button>
       )}
     </div>

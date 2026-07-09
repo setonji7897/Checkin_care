@@ -103,7 +103,7 @@ export default function MedicationReminder({ currentUser }) {
               const notificationKey = `${id}_${currentDateString}_${time}`;
               
               if (!newNotifiedSet.has(notificationKey)) {
-                console.log(`â° Time to take ${med.medicationName || med.name}!`);
+                console.log(`⏰ Time to take ${med.medicationName || med.name}!`);
                 
                 // 1. Play Sound
                 playAlarmSound();

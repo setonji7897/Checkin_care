@@ -7,7 +7,7 @@ export default function SupportChat({ isOpen, onClose }) {
     {
       id: Date.now(),
       role: 'assistant',
-      content: "Hi! I'm your CheckIn Care support assistant ðŸ‘‹\n\nI can help you with medications, reminders, adherence tracking, and navigating the app. What can I help you with today?",
+      content: "Hi! I'm your CheckIn Care support assistant 👋\n\nI can help you with medications, reminders, adherence tracking, and navigating the app. What can I help you with today?",
       timestamp: new Date()
     }
   ]);
@@ -81,7 +81,7 @@ export default function SupportChat({ isOpen, onClose }) {
         );
       });
     } catch (err) {
-      console.error("âŒ Error:", err);
+      console.error("❌ Error:", err);
       setError(err.message);
       // Remove the loading message if it failed completely
       setMessages(prev => {

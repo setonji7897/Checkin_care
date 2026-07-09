@@ -153,7 +153,7 @@ export default function App() {
         <Route path="medications" element={<ClinicianMedicationManagement />} />
         <Route path="alerts" element={<ClinicianAlerts />} />
         <Route path="reports" element={<ClinicianReports />} />
-        <Route path="messages" element={<MessagesPage activeRole="clinician" />} />
+        <Route path="messages" element={<Navigate to="/care-triangle" replace />} />
         <Route path="analytics" element={<ClinicianAnalytics />} />
         <Route path="notifications" element={<ClinicianNotifications />} />
         <Route path="profile" element={<ClinicianProfile />} />

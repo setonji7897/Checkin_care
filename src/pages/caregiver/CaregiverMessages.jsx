@@ -59,8 +59,7 @@ export default function CaregiverMessages() {
   }, [currentUser]);
 
   const openCareRoom = (patientId) => {
-    // Navigate to the Care Triangle, which auto-resolves the room for the caregiver
-    navigate("/care-triangle");
+    navigate(`/care-triangle?patientId=${patientId}`);
   };
 
   if (loading) {

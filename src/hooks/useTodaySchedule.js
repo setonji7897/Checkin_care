@@ -5,7 +5,7 @@
 // This guarantees 100% consistent numbers across pages.
 
 import { useState, useEffect, useMemo } from "react";
-import { ref, get, onValue } from "firebase/database";
+import { ref, get, onValue, query, orderByChild, equalTo } from "firebase/database";
 import { db } from "../firebase/config";
 
 // ── Helpers (identical to TodaySchedule.jsx) ──────────────────────────────
@@ -97,23 +97,25 @@ export function useTodaySchedule(currentUser) {
       setResolvedPatientId(patientId);
       console.log("📅 useTodaySchedule: patientId =", patientId);
 
-      // 2. Subscribe to all medications, filter client-side
-      unsubMeds = onValue(ref(db, "medications"), snap => {
+      // 2. Subscribe to patient medications, indexed by patientId
+      const medQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId));
+      unsubMeds = onValue(medQuery, snap => {
         const list = [];
         snap.forEach(child => {
           const val = child.val();
-          if (val.patientId === patientId) list.push({ id: child.key, ...val });
+          list.push({ id: child.key, ...val });
         });
         setMedications(list);
         console.log("📅 useTodaySchedule: medications =", list.length);
       });
 
-      // 3. Subscribe to all logs, filter client-side to today only
-      unsubLogs = onValue(ref(db, "adherenceLogs"), snap => {
+      // 3. Subscribe to patient logs, indexed by patientId, filter client-side to today only
+      const logQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientId));
+      unsubLogs = onValue(logQuery, snap => {
         const map = {};
         snap.forEach(child => {
           const log = child.val();
-          if (log.patientId === patientId && log.scheduledDate === todayStr) {
+          if (log.scheduledDate === todayStr) {
             map[log.medicationId + "_" + log.scheduledTime] = { id: child.key, ...log };
           }
         });

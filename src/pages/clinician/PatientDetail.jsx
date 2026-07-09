@@ -30,37 +30,41 @@ export default function PatientDetail() {
   const { patientId } = useParams();
   const navigate = useNavigate();
 
-  const [patient, setPatient]               = useState(null);
+  const [patient, setPatient] = useState(null);
+  const [rawMedsMap, setRawMedsMap] = useState({});
+  const [rawLogsMap, setRawLogsMap] = useState({});
 
-  // ── Medications: two slices merged (by record key + by linkedUid) ──────────
-  const [medsFromKey, setMedsFromKey]       = useState([]);
-  const [medsFromUid, setMedsFromUid]       = useState([]);
   const medications = useMemo(() => {
+    const keyMeds = rawMedsMap.key || [];
+    const uidMeds = rawMedsMap.uid || [];
     const seen = new Set();
-    return [...medsFromKey, ...medsFromUid].filter(m => {
-      if (seen.has(m.id)) return false;
-      seen.add(m.id);
+    return [...keyMeds, ...uidMeds].filter(med => {
+      const matches = med.patientId === patientId || (patient?.linkedUid && med.patientId === patient.linkedUid);
+      if (!matches) return false;
+      if (seen.has(med.id)) return false;
+      seen.add(med.id);
       return true;
     });
-  }, [medsFromKey, medsFromUid]);
+  }, [rawMedsMap, patientId, patient?.linkedUid]);
 
-  // ── Adherence logs: two slices merged (by record key + by linkedUid) ───────
-  const [logsFromKey, setLogsFromKey]       = useState([]);
-  const [logsFromUid, setLogsFromUid]       = useState([]);
   const logs = useMemo(() => {
+    const keyLogs = rawLogsMap.key || [];
+    const uidLogs = rawLogsMap.uid || [];
     const seen = new Set();
-    const merged = [...logsFromKey, ...logsFromUid].filter(l => {
-      if (seen.has(l.id)) return false;
-      seen.add(l.id);
+    const filtered = [...keyLogs, ...uidLogs].filter(log => {
+      const matches = log.patientId === patientId || (patient?.linkedUid && log.patientId === patient.linkedUid);
+      if (!matches) return false;
+      if (seen.has(log.id)) return false;
+      seen.add(log.id);
       return true;
     });
-    merged.sort((a, b) => {
-      const dA = `${a.scheduledDate}T${a.scheduledTime}`;
-      const dB = `${b.scheduledDate}T${b.scheduledTime}`;
+    filtered.sort((a, b) => {
+      const dA = `${a.scheduledDate}T${a.scheduledTime || "00:00"}`;
+      const dB = `${b.scheduledDate}T${b.scheduledTime || "00:00"}`;
       return dB.localeCompare(dA);
     });
-    return merged;
-  }, [logsFromKey, logsFromUid]);
+    return filtered;
+  }, [rawLogsMap, patientId, patient?.linkedUid]);
 
   const adherenceStats = useMemo(() => {
     const sevenDaysAgo = new Date();
@@ -70,16 +74,6 @@ export default function PatientDetail() {
   }, [logs]);
 
   const [loading, setLoading]               = useState(true);
-
-  // ── Caregiver assignment ───────────────────────────────────────────────────
-  const [caregiverEmail, setCaregiverEmail]   = useState("");
-  const [assignedCaregiver, setAssignedCaregiver] = useState(null);
-  const [assignError, setAssignError]         = useState("");
-  const [assignSuccess, setAssignSuccess]     = useState("");
-  const [assignLoading, setAssignLoading]     = useState(false);
-  // Confirmation modal state
-  const [showAssignWarning, setShowAssignWarning] = useState(false);
-  const [pendingCg, setPendingCg]             = useState(null); // { id, ...userData }
 
   // ── Edit medication state ──────────────────────────────────────────────────
   const [editingMedId, setEditingMedId]   = useState(null);
@@ -100,134 +94,74 @@ export default function PatientDetail() {
     // Patient profile
     const unsubscribePatient = onValue(ref(db, `patients/${patientId}`), snap => {
       if (snap.exists()) setPatient(snap.val());
-    });
-
-    // Medications stored with the patient record KEY as patientId
-    // (clinician-prescribed meds always use this path)
-    const medsKeyQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId));
-    const unsubscribeMedsKey = onValue(medsKeyQuery, snap => {
-      const list = [];
-      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setMedsFromKey(list);
-    });
-
-    // Adherence logs stored under record key
-    const logsKeyQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientId));
-    const unsubscribeLogsKey = onValue(logsKeyQuery, snap => {
-      const list = [];
-      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setLogsFromKey(list);
-    });
-
-    // Caregiver assignment
-    const unsubscribeAssign = onValue(ref(db, `caregiverAssignments/${patientId}`), async snap => {
-      if (snap.exists()) {
-        const { caregiverId } = snap.val();
-        const cgSnap = await get(ref(db, `users/${caregiverId}`));
-        if (cgSnap.exists()) setAssignedCaregiver({ id: caregiverId, ...cgSnap.val() });
-      } else {
-        setAssignedCaregiver(null);
-      }
       setLoading(false);
     });
 
     return () => {
       unsubscribePatient();
-      unsubscribeMedsKey();
-      unsubscribeLogsKey();
-      unsubscribeAssign();
     };
   }, [patientId]);
 
-  // ── Second subscriptions: by patient linkedUid ───────────────────────────
-  // Self-prescribed meds and adherence logs generated by the patient app
-  // may store patientId = auth UID (linkedUid) instead of the record key.
-  // These two effects catch those entries and merge them into the combined lists.
+  // Manage medications and logs queries per patient to satisfy security rules
   useEffect(() => {
+    if (!patientId) return;
+
+    const unsubs = [];
+
+    // 1. Subscribe by key (patientId)
+    const medKeyQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientId));
+    const unsubMedKey = onValue(medKeyQuery, snap => {
+      const list = [];
+      if (snap.exists()) {
+        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+      }
+      setRawMedsMap(prev => ({ ...prev, key: list }));
+    });
+    unsubs.push(unsubMedKey);
+
+    const logKeyQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientId));
+    const unsubLogKey = onValue(logKeyQuery, snap => {
+      const list = [];
+      if (snap.exists()) {
+        snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+      }
+      setRawLogsMap(prev => ({ ...prev, key: list }));
+    });
+    unsubs.push(unsubLogKey);
+
+    // 2. Subscribe by linkedUid (auth UID) if exists
     const linkedUid = patient?.linkedUid;
-    if (!linkedUid || linkedUid === patientId) {
-      setMedsFromUid([]);
-      setLogsFromUid([]);
-      return;
+    if (linkedUid && linkedUid !== patientId) {
+      const medUidQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(linkedUid));
+      const unsubMedUid = onValue(medUidQuery, snap => {
+        const list = [];
+        if (snap.exists()) {
+          snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+        }
+        setRawMedsMap(prev => ({ ...prev, uid: list }));
+      });
+      unsubs.push(unsubMedUid);
+
+      const logUidQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(linkedUid));
+      const unsubLogUid = onValue(logUidQuery, snap => {
+        const list = [];
+        if (snap.exists()) {
+          snap.forEach(child => list.push({ id: child.key, ...child.val() }));
+        }
+        setRawLogsMap(prev => ({ ...prev, uid: list }));
+      });
+      unsubs.push(unsubLogUid);
+    } else {
+      setRawMedsMap(prev => ({ ...prev, uid: [] }));
+      setRawLogsMap(prev => ({ ...prev, uid: [] }));
     }
 
-    // Medications by UID
-    const medsUidQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(linkedUid));
-    const unsubMedsUid = onValue(medsUidQuery, snap => {
-      const list = [];
-      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setMedsFromUid(list);
-    });
+    return () => {
+      unsubs.forEach(unsub => unsub());
+    };
+  }, [patientId, patient?.linkedUid]);
 
-    // Adherence logs by UID
-    const logsUidQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(linkedUid));
-    const unsubLogsUid = onValue(logsUidQuery, snap => {
-      const list = [];
-      if (snap.exists()) snap.forEach(child => list.push({ id: child.key, ...child.val() }));
-      setLogsFromUid(list);
-    });
 
-    return () => { unsubMedsUid(); unsubLogsUid(); };
-  }, [patient?.linkedUid, patientId]);
-
-  // ── Caregiver assignment — phase 1: lookup ────────────────────────────────
-  async function handleAssignCaregiver(e) {
-    e.preventDefault();
-    setAssignError("");
-    setAssignSuccess("");
-    if (!caregiverEmail.trim()) { setAssignError("Email is required."); return; }
-    setAssignLoading(true);
-    try {
-      const snapshot = await get(
-        query(ref(db, "users"), orderByChild("email"), equalTo(caregiverEmail.trim().toLowerCase()))
-      );
-      if (!snapshot.exists()) {
-        setAssignError("No user account found with this email.");
-        return;
-      }
-      const usersObj = snapshot.val();
-      const cgId     = Object.keys(usersObj)[0];
-      const cgData   = usersObj[cgId];
-
-      // FIX: schema uses roles: { caregiver: true }, not role: "caregiver"
-      if (!cgData.roles?.caregiver) {
-        const roleLabel = Object.keys(cgData.roles || {}).join(", ") || "unknown";
-        setAssignError(`That account is registered as "${roleLabel}". Only Caregiver accounts can be assigned.`);
-        return;
-      }
-
-      const resolved = { id: cgId, ...cgData };
-
-      if (assignedCaregiver) {
-        // Already assigned — show confirmation before overwriting
-        setPendingCg(resolved);
-        setShowAssignWarning(true);
-      } else {
-        await commitAssignment(resolved);
-      }
-    } catch (err) {
-      console.error(err);
-      setAssignError("Failed to look up caregiver. Please check your connection.");
-    } finally {
-      setAssignLoading(false);
-    }
-  }
-
-  // ── Caregiver assignment — phase 2: commit ────────────────────────────────
-  async function commitAssignment(cg) {
-    try {
-      await set(ref(db, `caregiverAssignments/${patientId}`), { caregiverId: cg.id });
-      const name = cg.firstName ? `${cg.firstName} ${cg.lastName || ""}`.trim() : cg.email;
-      setAssignSuccess(`Patient successfully assigned to caregiver: ${name}`);
-      setCaregiverEmail("");
-    } catch (err) {
-      console.error(err);
-      setAssignError("Failed to record caregiver assignment.");
-    } finally {
-      setShowAssignWarning(false);
-      setPendingCg(null);
-    }
-  }
 
   // ── Edit medication ────────────────────────────────────────────────────────
   function startEdit(med) {
@@ -330,97 +264,7 @@ export default function PatientDetail() {
             Taken: {adherenceStats.taken} | Missed: {adherenceStats.missed} | Skipped: {adherenceStats.skipped}
           </p>
         </div>
-
-        {/* Caregiver Assignment */}
-        <div className="dash-card placeholder-card">
-          <h3>Caregiver Assignment</h3>
-
-          {assignedCaregiver ? (
-            <p>
-              🟢 Assigned to:{" "}
-              <strong>
-                {assignedCaregiver.firstName
-                  ? `${assignedCaregiver.firstName} ${assignedCaregiver.lastName || ""}`.trim()
-                  : assignedCaregiver.fullName || "—"}
-              </strong>{" "}
-              ({assignedCaregiver.email})
-            </p>
-          ) : (
-            <p style={{ color: "var(--text-muted)" }}>No caregiver assigned yet.</p>
-          )}
-
-          <form onSubmit={handleAssignCaregiver} style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-            <input
-              type="email"
-              placeholder="caregiver@email.com"
-              value={caregiverEmail}
-              onChange={e => setCaregiverEmail(e.target.value)}
-              style={{
-                padding: "0.4rem 0.8rem", border: "1.5px solid var(--border)",
-                borderRadius: "10px", flex: 1, fontSize: "0.85rem",
-                background: "var(--input-bg)", color: "var(--text-primary)"
-              }}
-            />
-            <button type="submit" className="submit-btn"
-              style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem" }}
-              disabled={assignLoading}
-            >
-              {assignLoading ? "Checking…" : "Assign"}
-            </button>
-          </form>
-          {assignError   && <p style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.3rem" }}>{assignError}</p>}
-          {assignSuccess && <p style={{ color: "#10b981", fontSize: "0.75rem", marginTop: "0.3rem" }}>{assignSuccess}</p>}
-        </div>
       </section>
-
-      {/* ── Caregiver overwrite confirmation modal ── */}
-      {showAssignWarning && pendingCg && (
-        <div style={{
-          position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
-          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 500
-        }}>
-          <div className="dash-card" style={{
-            maxWidth: 460, width: "90%", padding: "2rem",
-            background: "var(--bg-card)", borderRadius: 20,
-            boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
-          }}>
-            <h3 style={{ marginBottom: "1rem", color: "#f59e0b" }}>⚠️ Replace Caregiver?</h3>
-            <p style={{ marginBottom: "0.75rem", lineHeight: 1.6 }}>
-              This patient is already assigned to{" "}
-              <strong>
-                {assignedCaregiver.firstName
-                  ? `${assignedCaregiver.firstName} ${assignedCaregiver.lastName || ""}`.trim()
-                  : assignedCaregiver.email}
-              </strong>{" "}
-              ({assignedCaregiver.email}).
-            </p>
-            <p style={{ marginBottom: "1.5rem", lineHeight: 1.6 }}>
-              Assigning{" "}
-              <strong>
-                {pendingCg.firstName
-                  ? `${pendingCg.firstName} ${pendingCg.lastName || ""}`.trim()
-                  : pendingCg.email}
-              </strong>{" "}
-              will <strong>replace</strong> this assignment. The previous caregiver will lose access to this patient.
-            </p>
-            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
-              <button
-                className="outline-btn"
-                onClick={() => { setShowAssignWarning(false); setPendingCg(null); }}
-              >
-                Cancel
-              </button>
-              <button
-                className="submit-btn"
-                style={{ background: "#f59e0b" }}
-                onClick={() => commitAssignment(pendingCg)}
-              >
-                Yes, Replace Caregiver
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Ending Soon section ── */}
       {endingSoonMeds.length > 0 && (

@@ -1,9 +1,9 @@
 // src/pages/patient/PatientDashboard.jsx
 //
 // Premium patient dashboard with:
-//  â€¢ Top stat cards (adherence rate, today's doses, streak, missed this week)
-//  â€¢ Weekly adherence section: summary cards, stacked bar chart, trend line, insights
-//  â€¢ Next dose countdown
+//  • Top stat cards (adherence rate, today's doses, streak, missed this week)
+//  • Weekly adherence section: summary cards, stacked bar chart, trend line, insights
+//  • Next dose countdown
 //  All data computed client-side from adherenceLogs (no Cloud Functions required).
 
 import { useState, useEffect, useMemo } from "react";
@@ -24,7 +24,7 @@ import {
 } from "recharts";
 import "../../styles/dashboard.css";
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Helpers ──────────────────────────────────────────────────────────────
 
 function useCountUp(end, duration) {
   const [count, setCount] = useState(0);
@@ -59,7 +59,7 @@ function dayLabel(ds) {
   return new Date(ds + "T12:00:00").toLocaleDateString([], { weekday: "short" });
 }
 
-// â”€â”€ Stacked bar tooltip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Stacked bar tooltip ──────────────────────────────────────────────────
 
 function StackedTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -99,7 +99,7 @@ function TrendTooltip({ active, payload }) {
   );
 }
 
-// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Component ────────────────────────────────────────────────────────────
 
 export default function PatientDashboard() {
   const { currentUser, userData } = useAuth();
@@ -126,7 +126,7 @@ export default function PatientDashboard() {
     return () => unsub();
   }, [resolvedPatientId]);
 
-  // â”€â”€ Today stats from shared hook â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Today stats from shared hook ───────────────────────────────────────
   const todayStats = useMemo(() => {
     let taken = 0, missed = 0;
     todayDoses.forEach(dose => {
@@ -137,7 +137,7 @@ export default function PatientDashboard() {
     return { total: todayDoses.length, taken, missed };
   }, [todayDoses, todayLogs]);
 
-  // â”€â”€ Next dose â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Next dose ──────────────────────────────────────────────────────────
   const nextDose = useMemo(() => {
     const currentMins = time.getHours() * 60 + time.getMinutes();
     return todayDoses.find(dose => {
@@ -148,7 +148,7 @@ export default function PatientDashboard() {
     }) || null;
   }, [todayDoses, todayLogs, time]);
 
-  // â”€â”€ Full stats computation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Full stats computation ─────────────────────────────────────────────
   const stats = useMemo(() => {
     const actionable = logs.filter(l => l.status === "taken" || l.status === "missed" || l.status === "skipped");
 
@@ -173,7 +173,7 @@ export default function PatientDashboard() {
       l.status === "missed" && new Date(l.scheduledDate + "T00:00:00") >= weekStart
     ).length;
 
-    // â”€â”€ WEEKLY ADHERENCE SECTION DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── WEEKLY ADHERENCE SECTION DATA ────────────────────────────────────
 
     // This week & last week ranges
     const thisWeek = getWeekRange(0);
@@ -230,7 +230,7 @@ export default function PatientDashboard() {
       else if (recent < older - 5) trendDirection = "declining";
     }
 
-    // â”€â”€ Insights â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Insights ─────────────────────────────────────────────────────────
     const insights = [];
 
     // Best & worst day this week
@@ -242,13 +242,13 @@ export default function PatientDashboard() {
       const worstPct = Math.round((worst.taken / worst.total) * 100);
 
       insights.push({
-        icon: "ðŸ†",
+        icon: "🏆",
         text: "Best day: " + best.day + " (" + bestPct + "% — " + best.taken + " taken)",
         type: "positive"
       });
       if (worst.day !== best.day) {
         insights.push({
-          icon: "âš ï¸",
+          icon: "⚠️",
           text: "Worst day: " + worst.day + " (" + worstPct + "% — " + worst.missed + " missed, " + worst.skipped + " skipped)",
           type: "warning"
         });
@@ -269,7 +269,7 @@ export default function PatientDashboard() {
 
     if (weakDays.length > 0) {
       insights.push({
-        icon: "ðŸ“Š",
+        icon: "📊",
         text: "Pattern: Lower adherence on " + weakDays.join(" & "),
         type: "info"
       });
@@ -289,7 +289,7 @@ export default function PatientDashboard() {
     const totalMissed = actionable.filter(l => l.status === "missed").length;
     if (totalMissed > 3 && morningMissed / totalMissed > 0.5) {
       insights.push({
-        icon: "ðŸŒ…",
+        icon: "🌅",
         text: "You miss morning doses (before 10 AM) more often — consider rescheduling",
         type: "tip"
       });
@@ -321,13 +321,13 @@ export default function PatientDashboard() {
     };
   }, [logs]);
 
-  // â”€â”€ Animated counts â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Animated counts ────────────────────────────────────────────────────
   const countAdherence = useCountUp(stats.adherenceRate, 1400);
   const countStreak    = useCountUp(stats.streak, 900);
   const countMissed    = useCountUp(stats.missedThisWeek, 700);
   const countMonth     = useCountUp(stats.monthPct, 1200);
 
-  // â”€â”€ Countdown to next dose â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Countdown to next dose ─────────────────────────────────────────────
   const nextDoseTime = nextDose ? (() => {
     const d = new Date();
     const [h, m] = (nextDose.scheduledTime || "00:00").split(":").map(Number);
@@ -350,7 +350,7 @@ export default function PatientDashboard() {
     const same = diff === 0;
     const color = same ? "var(--text-muted)" : improved ? "#10b981" : "#ef4444";
     const Icon = same ? Minus : improved ? ArrowUpRight : ArrowDownRight;
-    const text = same ? "Same as last week" : (Math.abs(diff) + (improved ? " â†‘" : " â†“") + " vs last week");
+    const text = same ? "Same as last week" : (Math.abs(diff) + (improved ? " ↑" : " ↓") + " vs last week");
     return (
       <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.76rem", fontWeight: 700, color, marginTop: 4 }}>
         <Icon size={13} /> {text}
@@ -358,7 +358,7 @@ export default function PatientDashboard() {
     );
   }
 
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Render ─────────────────────────────────────────────────────────────
 
   return (
     <div className="page-transition-enter">
@@ -369,7 +369,7 @@ export default function PatientDashboard() {
         </div>
       </header>
 
-      {/* â•â•â• TOP STAT CARDS â•â•â• */}
+      {/* ═══ TOP STAT CARDS ═══ */}
       <div className="stats-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="dash-card wave-3-card" style={{ animationDelay: "200ms" }}>
           <div style={{ padding: "0.75rem", background: "#eff6ff", borderRadius: 12, width: "max-content", marginBottom: "1rem", color: "#2563eb" }}><TrendingUp size={24} /></div>
@@ -397,7 +397,7 @@ export default function PatientDashboard() {
         </div>
       </div>
 
-      {/* â•â•â• WEEKLY ADHERENCE SECTION â•â•â• */}
+      {/* ═══ WEEKLY ADHERENCE SECTION ═══ */}
       <Link
         to="/care-triangle"
         className="dash-card wave-3-card"
@@ -448,7 +448,7 @@ export default function PatientDashboard() {
           <Link to="/patient/history" style={{ color: "#6366f1", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700 }}>View full report →</Link>
         </div>
 
-        {/* â”€â”€ Summary cards â”€â”€ */}
+        {/* ── Summary cards ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.85rem", marginBottom: "1.75rem" }}>
           {/* Taken */}
           <div style={{
@@ -494,7 +494,7 @@ export default function PatientDashboard() {
           </div>
         </div>
 
-        {/* â”€â”€ Stacked daily bar chart â”€â”€ */}
+        {/* ── Stacked daily bar chart ── */}
         <div style={{ marginBottom: "1.75rem" }}>
           <h4 style={{ margin: "0 0 0.75rem", fontSize: "0.82rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Daily breakdown (last 7 days)</h4>
           <div style={{ height: 220, width: "100%" }}>
@@ -520,7 +520,7 @@ export default function PatientDashboard() {
           </div>
         </div>
 
-        {/* â”€â”€ 4-week trend line â”€â”€ */}
+        {/* ── 4-week trend line ── */}
         <div style={{ marginBottom: "1.75rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
             <h4 style={{ margin: 0, fontSize: "0.82rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Adherence trend (4 weeks)</h4>
@@ -531,7 +531,7 @@ export default function PatientDashboard() {
               background: stats.trendDirection === "improving" ? "rgba(16,185,129,0.1)" : stats.trendDirection === "declining" ? "rgba(239,68,68,0.1)" : "rgba(107,114,128,0.1)",
               color: stats.trendDirection === "improving" ? "#10b981" : stats.trendDirection === "declining" ? "#ef4444" : "var(--text-muted)"
             }}>
-              {stats.trendDirection === "improving" ? "📈 Improving" : stats.trendDirection === "declining" ? "📉 Declining" : "âž¡ï¸ Stable"}
+              {stats.trendDirection === "improving" ? "📈 Improving" : stats.trendDirection === "declining" ? "📉 Declining" : "➡️ Stable"}
             </span>
           </div>
           <div style={{ height: 180, width: "100%" }}>
@@ -552,7 +552,7 @@ export default function PatientDashboard() {
           </div>
         </div>
 
-        {/* â”€â”€ Insights box â”€â”€ */}
+        {/* ── Insights box ── */}
         {stats.insights.length > 0 && (
           <div style={{
             background: "linear-gradient(135deg, rgba(99,102,241,0.06), rgba(37,99,235,0.04))",
@@ -582,7 +582,7 @@ export default function PatientDashboard() {
         )}
       </div>
 
-      {/* â•â•â• BOTTOM ROW: NEXT DOSE + THIS MONTH â•â•â• */}
+      {/* ═══ BOTTOM ROW: NEXT DOSE + THIS MONTH ═══ */}
       <div className="dashboard-grid" style={{ gridTemplateColumns: "1fr 1fr", alignItems: "start" }}>
         {/* Next dose */}
         <div className="dash-card wave-3-card" style={{ animationDelay: "500ms", background: "linear-gradient(135deg, #1e3a8a, #2563eb)", color: "white", border: "none" }}>
@@ -599,7 +599,7 @@ export default function PatientDashboard() {
               </Link>
             </>
           ) : (
-            <p style={{ margin: 0, fontSize: "1rem", lineHeight: 1.5 }}>All doses complete for today. âœ…</p>
+            <p style={{ margin: 0, fontSize: "1rem", lineHeight: 1.5 }}>All doses complete for today. ✅</p>
           )}
         </div>
 

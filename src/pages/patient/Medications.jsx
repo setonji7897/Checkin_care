@@ -1,4 +1,4 @@
-﻿// src/pages/patient/Medications.jsx
+// src/pages/patient/Medications.jsx
 // Premium card-based medication catalog with glassmorphism, animations, and rich info display.
 
 import { useState, useEffect } from "react";
@@ -63,18 +63,15 @@ export default function Medications() {
 
     get(patientQuery).then(snap => {
       const patientIdRef = snap.exists() ? Object.keys(snap.val())[0] : currentUser.uid;
-      console.log("ðŸ“‹ Fetching ALL medications for:", patientIdRef);
+      console.log("📋 Fetching ALL medications for:", patientIdRef);
 
-      const unsubscribe = onValue(ref(db, "medications"), (medSnap) => {
+      const medQuery = query(ref(db, "medications"), orderByChild("patientId"), equalTo(patientIdRef));
+      const unsubscribe = onValue(medQuery, (medSnap) => {
         const list = [];
         if (medSnap.exists()) {
-          const vals = medSnap.val();
-          for (const key in vals) {
-            const med = vals[key];
-            if (med.patientId === patientIdRef) {
-              list.push({ id: key, ...med });
-            }
-          }
+          medSnap.forEach(child => {
+            list.push({ id: child.key, ...child.val() });
+          });
           list.sort((a, b) => {
             const ta = Array.isArray(a.reminderTime) ? a.reminderTime[0] : (a.reminderTime || "");
             const tb = Array.isArray(b.reminderTime) ? b.reminderTime[0] : (b.reminderTime || "");
@@ -84,7 +81,7 @@ export default function Medications() {
         setMedications(list);
         setLoading(false);
       }, (err) => {
-        console.error("âŒ Error:", err);
+        console.error("❌ Error:", err);
         setLoading(false);
       });
 
@@ -117,7 +114,7 @@ export default function Medications() {
 
   return (
     <div className="med-catalog-page">
-      {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Header ───────────────────────────────────────────── */}
       <header className="dash-header med-catalog-header">
         <div>
           <span className="premium-eyebrow"><Sparkles size={13} /> Medication Catalog</span>
@@ -133,7 +130,7 @@ export default function Medications() {
         </button>
       </header>
 
-      {/* â”€â”€ Search + Filter Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Search + Filter Bar ───────────────────────────────── */}
       <div className="med-controls-bar">
         <div className="med-search-wrap">
           <Search size={16} className="med-search-icon" />
@@ -165,11 +162,11 @@ export default function Medications() {
         </div>
       </div>
 
-      {/* â”€â”€ Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Content ──────────────────────────────────────────── */}
       {loading ? (
         <div className="med-loading-state">
           <div className="med-loading-spinner" />
-          <p>Loading your medication catalogâ€¦</p>
+          <p>Loading your medication catalog…</p>
         </div>
       ) : filtered.length === 0 ? (
         <div className="med-empty-state">

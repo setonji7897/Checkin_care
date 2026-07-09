@@ -108,17 +108,8 @@ export default function CaregiverPatients() {
     }
   };
 
-  const startMessage = async (patient) => {
-    const patientUid = getPatientUid(patient, patient.id);
-    await getOrCreateConversation(
-      currentUser.uid,
-      "caregiver",
-      patientUid,
-      "patient",
-      userData?.firstName || "Caregiver",
-      getPatientName(patient)
-    );
-    navigate("/caregiver/messages");
+  const startMessage = (patient) => {
+    navigate(`/care-triangle?patientId=${patient.id}`);
   };
 
   return (

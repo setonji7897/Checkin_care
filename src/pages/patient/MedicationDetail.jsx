@@ -83,7 +83,7 @@ export default function MedicationDetail() {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "300px", gap: "1rem", color: "var(--text-muted)" }}>
         <div style={{ width: 38, height: 38, border: "3px solid var(--border)", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-        <p>Loading medication detailsâ€¦</p>
+        <p>Loading medication details…</p>
       </div>
     );
   }

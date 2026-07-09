@@ -44,7 +44,9 @@ export default function AddPatient() {
 
     if (!medicalCondition.trim()) errs.medicalCondition = "Medical condition is required.";
 
-    if (email.trim()) {
+    if (!email.trim()) {
+      errs.email = "Email address is required.";
+    } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         errs.email = "Please enter a valid email address.";
@@ -66,6 +68,25 @@ export default function AddPatient() {
 
       // Try resolving existing user matching this email to link them
       if (email.trim()) {
+        // First check if a patient with this email is already on the clinician's roster
+        const rosterQuery = query(
+          ref(db, "patients"),
+          orderByChild("clinicianId"),
+          equalTo(currentUser.uid)
+        );
+        const rosterSnap = await get(rosterQuery);
+        if (rosterSnap.exists()) {
+          const rosterVal = rosterSnap.val();
+          const isDuplicate = Object.values(rosterVal).some(
+            p => p.email && p.email.trim().toLowerCase() === email.trim().toLowerCase()
+          );
+          if (isDuplicate) {
+            setErrors(prev => ({ ...prev, email: "A patient with this email is already on your roster." }));
+            setLoading(false);
+            return;
+          }
+        }
+
         const emailQuery = query(
           ref(db, "users"),
           orderByChild("email"),

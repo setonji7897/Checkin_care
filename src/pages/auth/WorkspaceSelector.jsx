@@ -48,9 +48,9 @@ export default function WorkspaceSelector() {
                 gap: "0.5rem"
               }}
             >
-              {role === "patient" && "ðŸ§‘â€âš•ï¸ Patient Portal"}
-              {role === "caregiver" && "ðŸ¤ Caregiver Dashboard"}
-              {role === "clinician" && "ðŸ‘©â€ðŸ”¬ Clinician Console"}
+              {role === "patient" && "🧑‍⚕️ Patient Portal"}
+              {role === "caregiver" && "🤝 Caregiver Dashboard"}
+              {role === "clinician" && "👩‍🔬 Clinician Console"}
             </button>
           ))}
         </div>

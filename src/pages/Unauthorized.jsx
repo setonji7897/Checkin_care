@@ -46,7 +46,7 @@ export default function Unauthorized() {
       padding: "2rem",
       textAlign: "center"
     }}>
-      <span style={{ fontSize: "4rem", marginBottom: "1rem" }}>ðŸš«</span>
+      <span style={{ fontSize: "4rem", marginBottom: "1rem" }}>🚫</span>
       <h1 style={{ margin: "0 0 0.5rem 0", color: "var(--text-primary)", fontWeight: 800 }}>Access Denied</h1>
       <p style={{ color: "var(--text-muted)", maxWidth: "420px", fontSize: "0.95rem", lineHeight: "1.5", marginBottom: "2rem" }}>
         Your user account role is not permitted to view this area of the Medication Reminder portal.

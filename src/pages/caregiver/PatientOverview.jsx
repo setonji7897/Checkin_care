@@ -123,7 +123,7 @@ export default function PatientOverview() {
         </div>
         <WorkspaceSwitcher />
         <nav className="sidebar-nav">
-          <a onClick={() => navigate("/caregiver")} className="nav-item active">ðŸ  Overview</a>
+          <a onClick={() => navigate("/caregiver")} className="nav-item active">🏠 Overview</a>
         </nav>
         <button className="signout-btn" onClick={handleSignOut}>Sign Out</button>
       </aside>
@@ -143,7 +143,7 @@ export default function PatientOverview() {
           </div>
         ) : patients.length === 0 ? (
           <div className="dash-card" style={{ textAlign: "center", padding: "3rem" }}>
-            <span style={{ fontSize: "3rem" }}>ðŸ¤</span>
+            <span style={{ fontSize: "3rem" }}>🤝</span>
             <h3 style={{ margin: "1rem 0 0.5rem 0" }}>No patients assigned yet</h3>
             <p style={{ color: "var(--text-muted)" }}>Ask your clinician to link patient profiles to your caregiver email.</p>
           </div>

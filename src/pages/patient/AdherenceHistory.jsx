@@ -1,9 +1,9 @@
-﻿// src/pages/patient/AdherenceHistory.jsx
+// src/pages/patient/AdherenceHistory.jsx
 //
 // PURPOSE: Summary and historical log viewer for patient adherence compliance.
 
 import { useState, useEffect } from "react";
-import { ref, onValue, get } from "firebase/database";
+import { ref, onValue, get, query, orderByChild, equalTo } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { calculateAdherenceRate } from "../../utils/adherenceStats";
@@ -32,17 +32,15 @@ export default function AdherenceHistory() {
           if (val.linkedUid === currentUser.uid) patientIdRef = child.key;
         });
       }
-      console.log("ðŸ“Š History: resolved patientId =", patientIdRef);
+      console.log("📊 History: resolved patientId =", patientIdRef);
 
-      // Fetch ALL logs and filter client-side — no Firebase index needed
-      unsubscribeLogs = onValue(ref(db, "adherenceLogs"), (logsSnap) => {
+      // Fetch logs, indexed by patientId
+      const logQuery = query(ref(db, "adherenceLogs"), orderByChild("patientId"), equalTo(patientIdRef));
+      unsubscribeLogs = onValue(logQuery, (logsSnap) => {
         const list = [];
         if (logsSnap.exists()) {
           logsSnap.forEach(child => {
-            const val = child.val();
-            if (val.patientId === patientIdRef) {
-              list.push({ id: child.key, ...val });
-            }
+            list.push({ id: child.key, ...child.val() });
           });
         }
         list.sort((a, b) => {
@@ -51,7 +49,7 @@ export default function AdherenceHistory() {
           return dtB.localeCompare(dtA);
         });
         setLogs(list);
-        console.log("ðŸ“Š History: loaded", list.length, "logs");
+        console.log("📊 History: loaded", list.length, "logs");
         setLoading(false);
       }, (err) => {
         console.error("History logs error:", err);

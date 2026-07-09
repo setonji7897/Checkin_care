@@ -2,7 +2,7 @@
 //
 // PURPOSE: Unified 3-way messaging page used by all three roles.
 // Pass the currentUser's role as a prop from each role's router.
-// Works for Patient â†” Clinician â†” Caregiver conversations.
+// Works for Patient ↔ Clinician ↔ Caregiver conversations.
 
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,7 +25,7 @@ import {
   Loader2, CheckCheck, User
 } from "lucide-react";
 
-// â”€â”€â”€ Avatar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Avatar ──────────────────────────────────────────────────────────────────
 function Avatar({ name, role, size = 40 }) {
   const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "var(--text-muted)" };
   return (
@@ -41,7 +41,7 @@ function Avatar({ name, role, size = 40 }) {
   );
 }
 
-// â”€â”€â”€ Role badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Role badge ───────────────────────────────────────────────────────────────
 function RoleBadge({ role }) {
   const colors = ROLE_COLORS[role] || { bg: "#f1f5f9", color: "var(--text-muted)" };
   return (
@@ -55,7 +55,7 @@ function RoleBadge({ role }) {
   );
 }
 
-// â”€â”€â”€ New Conversation Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── New Conversation Modal ───────────────────────────────────────────────────
 function NewConversationModal({ currentUser, userData, activeRole, onStart, onClose }) {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -235,7 +235,7 @@ function NewConversationModal({ currentUser, userData, activeRole, onStart, onCl
   );
 }
 
-// â”€â”€â”€ Chat Window â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Chat Window ──────────────────────────────────────────────────────────────
 function ChatWindow({ conversation, currentUser, onBack }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -448,7 +448,7 @@ function ChatWindow({ conversation, currentUser, onBack }) {
   );
 }
 
-// â”€â”€â”€ Conversation List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Conversation List ────────────────────────────────────────────────────────
 function ConversationList({ conversations, currentUser, activeConvId, onSelect, onNew }) {
   const [search, setSearch] = useState("");
 
@@ -571,7 +571,7 @@ function ConversationList({ conversations, currentUser, activeConvId, onSelect, 
   );
 }
 
-// â”€â”€â”€ Main MessagesPage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Main MessagesPage ────────────────────────────────────────────────────────
 export default function MessagesPage({ activeRole }) {
   const { currentUser, userData } = useAuth();
   const [conversations, setConversations] = useState([]);
